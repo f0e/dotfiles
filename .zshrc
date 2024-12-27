@@ -73,11 +73,40 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Would you like to use another custom folder than $ZSH/custom?
 # ZSH_CUSTOM=/path/to/new-custom-folder
 
+# Created by `pipx` on 2024-06-27 01:12:22
+export PATH="$PATH:$HOME/.local/bin"
+
+# Added by OrbStack: command-line tools and integration
+source ~/.orbstack/shell/init.zsh 2>/dev/null || :
+
+# pnpm
+export PNPM_HOME="$HOME/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
+
+# vcpkg
+export VCPKG_ROOT=$HOME/vcpkg
+export PATH=$VCPKG_ROOT:$PATH
+
+# prioritise brew llvm over mac clang stuff
+export PATH=$(brew --prefix llvm)/bin:$PATH
+
+# pyenv
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+
+# lazy load nvm
 zstyle ':omz:plugins:nvm' lazy yes
 
 plugins=(
   git
   nvm
+  brew
+  pyenv
   fzf
   zsh-autosuggestions
   zsh-syntax-highlighting
@@ -114,6 +143,23 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+
+# aliases
+# alias ll='ls -l --color=auto'
+alias ls='eza'
+alias l='eza -lbF --git'
+alias ll='eza -lbGF --git'
+alias llm='eza -lbGd --git --sort=modified'
+alias la='eza -lbhHigUmuSa --time-style=long-iso --git --color-scale'
+alias lx='eza -lbhHigUmuSa@ --time-style=long-iso --git --color-scale'
+
+# specialty views
+alias lS='eza -1'
+alias lt='eza --tree --level=2'
+alias l.="eza -a | grep -E '^\.'"
+
+# https://stackoverflow.com/a/42679697
+unsetopt nomatch
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
