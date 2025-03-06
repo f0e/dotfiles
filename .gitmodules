@@ -1,0 +1,3 @@
+[submodule ".config/mpv"]
+	path = .config/mpv
+	url = git@github.com:f0e/mpv-config.git
