@@ -94,23 +94,16 @@ export PATH=$VCPKG_ROOT:$PATH
 # prioritise brew llvm over mac clang stuff
 export PATH=$(brew --prefix llvm)/bin:$PATH
 
-# pyenv
-export PYENV_ROOT="$HOME/.pyenv"
-[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
-
-# lazy load nvm
-zstyle ':omz:plugins:nvm' lazy yes
+# bun
+export PATH=$HOME/.bun/bin:$PATH
 
 plugins=(
   git
-  nvm
   brew
-  pyenv
   fzf
+  mise
   zsh-autosuggestions
   zsh-syntax-highlighting
-  you-should-use
 )
 
 source $ZSH/oh-my-zsh.sh

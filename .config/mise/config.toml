@@ -1,0 +1,6 @@
+[tools]
+bun = "latest"
+node = "lts"
+python = "latest"
+usage = "latest"
+uv = "latest"
