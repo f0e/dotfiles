@@ -1,6 +1,4 @@
 [tools]
-bun = "latest"
-node = "lts"
-python = "latest"
-usage = "latest"
+biome = "latest"
 uv = "latest"
+
