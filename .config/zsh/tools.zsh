@@ -17,11 +17,16 @@ typeset -a tools=(
   "git-delta:delta" # git pager replacement
 
   # tools
+  starship           # prompt
   jless              # json viewer
   mise               # dev tools etc
   fzf                # fuzzy finder
   "difftastic:difft" # syntax-aware git diff (ignoring indentation changes, etc)
   yadm               # dotfiles management
+)
+
+typeset -a fonts=(
+  "font-geist-mono-nerd-font:*GeistMono*Nerd*"
 )
 
 # collect missing tools
@@ -44,10 +49,37 @@ for tool_spec in "${tools[@]}"; do
   fi
 done
 
-# install missing tools (at once - should be faster)
+# collect missing fonts
+typeset -a missing_fonts=()
+
+for font_spec in "${fonts[@]}"; do
+  if [[ "$font_spec" == *":"* ]]; then
+    formula="${font_spec%:*}"
+    pattern="${font_spec#*:}"
+  else
+    formula="$font_spec"
+    pattern="*${font_spec#font-}*"
+  fi
+
+  if ! find /System/Library/Fonts /Library/Fonts ~/Library/Fonts -name "$pattern" 2>/dev/null | head -1 | read; then
+    echo "$formula not found."
+    missing_fonts+=("$formula")
+  elif ((VERBOSE)); then
+    echo "$formula is already installed."
+  fi
+done
+
+# install missing tools and fonts
 if ((${#missing_formulas[@]} > 0)); then
   echo "Installing missing tools: ${missing_formulas[*]}"
   brew install "${missing_formulas[@]}"
 elif ((VERBOSE)); then
   echo "All tools are already installed."
+fi
+
+if ((${#missing_fonts[@]} > 0)); then
+  echo "Installing missing fonts: ${missing_fonts[*]}"
+  brew install --cask "${missing_fonts[@]}"
+elif ((VERBOSE)); then
+  echo "All fonts are already installed."
 fi

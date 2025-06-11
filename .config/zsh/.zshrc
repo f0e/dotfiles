@@ -1,4 +1,10 @@
+# ────────────────────────────── options ──────────────────────────────
+
+PROFILE=0
+
 # ────────────────────────────── init ──────────────────────────────
+
+(( PROFILE )) && zmodload zsh/zprof
 
 # source global shell alias & variables files
 [ -f "$XDG_CONFIG_HOME/shell/alias" ] && source "$XDG_CONFIG_HOME/shell/alias"
@@ -61,96 +67,66 @@ bindkey '\e[F' end-of-line # fn + right to end of line
 
 WORDCHARS="" # use native word separation behaviour
 
-# ────────────────────────────── prompt ──────────────────────────────
-autoload -Uz vcs_info
-precmd() { vcs_info }
-
-zstyle ':vcs_info:git:*' formats '%b'
-zstyle ':vcs_info:git:*' actionformats '%b|%a'
-
-git_dirty() {
-	if [[ -n $(git status --porcelain 2>/dev/null) ]]; then
-	echo "*"
-	fi
-}
-
-git_ahead_behind() {
-	local ahead behind arrows
-	
-	# Get the upstream branch
-	local upstream=$(git rev-parse --abbrev-ref @{upstream} 2>/dev/null)
-	
-	# If no upstream, return empty
-	[[ -z "$upstream" ]] && return
-	
-	# Get ahead/behind counts
-	local counts=$(git rev-list --left-right --count HEAD...$upstream 2>/dev/null)
-	
-	# If git command failed, return empty
-	[[ $? -ne 0 ]] && return
-	
-	# Parse the counts
-	ahead=$(echo $counts | cut -f1)
-	behind=$(echo $counts | cut -f2)
-	
-	# Build arrow indicators
-	arrows=""
-	[[ $ahead -gt 0 ]] && arrows+="↑$ahead"
-	[[ $behind -gt 0 ]] && arrows+="↓$behind"
-	
-	# Return arrows with space if not empty
-	[[ -n "$arrows" ]] && echo " $arrows"
-}
-
-setopt prompt_subst
+# ────────────────────────────── header ──────────────────────────────
 
 COLOUR_BG_DARK="#121211"
 COLOUR_FG_LIGHT="#d5c4a1"
 COLOUR_BG_LIGHT="#21201e"
 COLOUR_FG_DARK="#ab9d82"
 COLOUR_FG_DIM="#8c816b"
-COLOUR_PROMPT_CHAR="240"
-COLOUR_PROMPT_CHAR_FAIL="red"
 
-NEWLINE=$'\n'
-TIME=$(date '+%H:%M:%S')
-
-vcs_segment() {
-	[[ -n $vcs_info_msg_0_ ]] && echo " ${vcs_info_msg_0_}$(git_dirty)$(git_ahead_behind) " || echo ""
-}
-
-PROMPT='${NEWLINE}\
-%K{'"$COLOUR_BG_DARK"'}%F{'"$COLOUR_FG_LIGHT"'} %~ \
-%K{'"$COLOUR_BG_LIGHT"'}%F{'"$COLOUR_FG_DIM"'}$(vcs_segment)\
-%k%f %(?.%F{'"$COLOUR_PROMPT_CHAR"'}%% %f.%F{'"$COLOUR_PROMPT_CHAR_FAIL"'}%% %f)'
-
-# ────────────────────────────── header ──────────────────────────────
 show_uptime_header() {
-	local uptime_raw days time_part minutes_only hours minutes output
-	local current_time=$(date '+%H:%M:%S')
-	local shell_path=${SHELL:-$(which $0)}
-
-	uptime_raw=$(uptime | sed -E 's/.*up (.*), [0-9]+ users,.*/\1/')
-
-	days=$(echo "$uptime_raw" | grep -oE '[0-9]+ day[s]?')
-	time_part=$(echo "$uptime_raw" | grep -oE '[0-9]+:[0-9]+')
-	minutes_only=$(echo "$uptime_raw" | grep -oE '[0-9]+ min[s]?')
-
-	if [[ -n "$time_part" ]]; then
-		hours=$(echo "$time_part" | cut -d':' -f1)
-		minutes=$(echo "$time_part" | cut -d':' -f2)
-	elif [[ -n "$minutes_only" ]]; then
-		minutes=$(echo "$minutes_only" | grep -oE '[0-9]+')
-	fi
-
-	output=""
-	[[ -n "$days" ]] && output+="$days, "
-	[[ -n "$hours" ]] && output+="$hours hours, "
-	[[ -n "$minutes" ]] && output+="$minutes minutes"
-	output=$(echo "$output" | sed 's/, $//')
-
-	# Compose the whole decorated line with shell path first
-	print -P "%K{$COLOUR_BG_DARK}%F{$COLOUR_FG_DIM} ${shell_path} %K{$COLOUR_BG_LIGHT}%F{$COLOUR_FG_DARK} up ${output} %k%f"
+	local uptime_output shell_path
+	
+	# Get shell path once
+	shell_path=${SHELL:-$0}
+	
+	# Parse uptime in a single read, avoiding multiple subprocess calls
+	uptime_output=$(uptime | sed -E 's/.*up ([^,]*), [0-9]+ user.*/\1/' | awk '{
+		output = ""
+		
+		# Check for days
+		for (i=1; i<=NF; i++) {
+			if ($i ~ /^[0-9]+$/ && $(i+1) ~ /^day/) {
+				output = $i " days"
+				break
+			}
+		}
+		
+		# Check for time format (hours:minutes)
+		for (i=1; i<=NF; i++) {
+			if ($i ~ /^[0-9]+:[0-9]+$/) {
+				split($i, time_arr, ":")
+				hours = time_arr[1]
+				minutes = time_arr[2]
+				
+				if (output) output = output ", "
+				if (hours > 0) output = output hours " hours"
+				if (minutes > 0) {
+					if (hours > 0) output = output ", "
+					output = output minutes " minutes"  
+				}
+				found_time = 1
+				break
+			}
+		}
+		
+		# Check for minutes only (if no time format found)
+		if (!found_time) {
+			for (i=1; i<=NF; i++) {
+				if ($i ~ /^[0-9]+$/ && $(i+1) ~ /^min/) {
+					if (output) output = output ", "
+					output = output $i " minutes"
+					break
+				}
+			}
+		}
+		
+		print output
+	}')
+	
+	# Single print statement
+	print -P "%K{$COLOUR_BG_DARK}%F{$COLOUR_FG_DIM} ${shell_path} %K{$COLOUR_BG_LIGHT}%F{$COLOUR_FG_DARK} up ${uptime_output} %k%f"
 }
 
 # Show header on shell start
@@ -210,3 +186,7 @@ load_script "$XDG_CONFIG_HOME/zsh/functions.zsh"
 
 export PATH="$MODIFIED_PATH:$PATH"
 typeset -U path # dedupe
+
+eval "$(starship init zsh)"
+
+(( PROFILE )) && zprof

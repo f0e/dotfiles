@@ -1,0 +1,96 @@
+format = """
+$directory\
+$git_branch\
+$git_status\
+$git_state\
+$python\
+$character"""
+
+[directory]
+format = "[ $path ]($style)"
+style = "bg:#121211 fg:#d5c4a1"
+truncation_length = 0
+truncate_to_repo = false
+
+[character]
+success_symbol = "[%](240)"
+error_symbol = "[%](red)"
+format = " $symbol "
+
+[git_branch]
+format = "[ $symbol$branch]($style)"
+style = "bg:#21201e fg:#8c816b"
+symbol = ""
+
+[git_status]
+format = '[$untracked$modified$conflicted$deleted$renamed$staged$stashed$ahead_behind ]($style)'
+style = "bg:#21201e fg:#8c816b"
+ahead = "↑${count}"
+behind = "↓${count}"
+diverged = "↑${ahead_count}↓${behind_count}"
+conflicted = "​"
+untracked = "*"
+modified = "*"
+staged = "​"
+renamed = "​"
+deleted = "​"
+stashed = "≡"
+
+[git_state]
+format = '([$state( $progress_current/$progress_total)]($style))'
+style = "fg:#8c816b"
+
+[nodejs]
+format = " [$symbol($version)]($style)"
+style = "fg:#ab9d82"
+symbol = "⬢ "
+
+[python]
+format = " [$symbol$pyenv_prefix($version)($virtualenv)]($style)"
+style = "fg:#ab9d82"
+symbol = "🐍 "
+
+[rust]
+format = " [$symbol($version)]($style)"
+style = "fg:#ab9d82"
+symbol = "🦀 "
+
+[golang]
+format = " [$symbol($version)]($style)"
+style = "fg:#ab9d82"
+symbol = "🐹 "
+
+[java]
+format = " [$symbol($version)]($style)"
+style = "fg:#ab9d82"
+symbol = "☕ "
+
+[docker_context]
+format = " [$symbol$context]($style)"
+style = "fg:#8c816b"
+symbol = "🐳 "
+
+[aws]
+format = " [$symbol($profile)(\\($region\\))(\\[$duration\\])]($style)"
+style = "fg:#8c816b"
+symbol = "☁️ "
+
+[gcloud]
+format = " [$symbol$account(@$domain)(\\($region\\))]($style)"
+style = "fg:#8c816b"
+symbol = "☁️ "
+
+[package]
+format = " [$symbol$version]($style)"
+style = "fg:#ab9d82"
+symbol = "📦 "
+
+[cmd_duration]
+format = " [$duration]($style)"
+style = "fg:#8c816b"
+min_time = 2000
+
+[time]
+format = " [$time]($style)"
+style = "fg:#8c816b"
+disabled = false
