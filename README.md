@@ -2,4 +2,6 @@
 
 ---
 
+managed with [yadm](https://yadm.io/)
+
 some stuff from https://github.com/BreadOnPenguins/dots
