@@ -24,6 +24,10 @@ typeset -a tools=(
   "difftastic:difft" # syntax-aware git diff (ignoring indentation changes, etc)
   yadm               # dotfiles management
   zinit              # zsh plugin manager
+  gron               # make json greppable (e.g. gron [json] | rg key.key2)
+  curlie             # nicer curl
+  hyperfine          # benchmarker
+  hexyl              # cli hex viewer
 )
 
 typeset -a fonts=(
@@ -107,6 +111,7 @@ done
 if ((${#missing_formulas[@]} > 0)); then
   echo "Installing missing tools: ${missing_formulas[*]}"
   brew install "${missing_formulas[@]}"
+  echo ""
 elif ((VERBOSE)); then
   echo "All tools are already installed."
 fi
@@ -114,6 +119,7 @@ fi
 if ((${#missing_fonts[@]} > 0)); then
   echo "Installing missing fonts: ${missing_fonts[*]}"
   brew install --cask "${missing_fonts[@]}"
+  echo ""
 elif ((VERBOSE)); then
   echo "All fonts are already installed."
 fi
