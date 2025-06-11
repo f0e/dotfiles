@@ -3,14 +3,28 @@ $directory\
 $git_branch\
 $git_status\
 $git_state\
+$mise\
+$nodejs\
 $python\
+$rust\
+$golang\
+$java\
+$aws\
+$cmd_duration\
 $character"""
+# $gcloud\
+# $docker_context\
+# $package\
 
 [directory]
 format = "[ $path ]($style)"
-style = "bg:#121211 fg:#d5c4a1"
-truncation_length = 0
-truncate_to_repo = false
+style = "bg:#121211 fg:#8c816b"
+
+repo_root_format = "[ $before_root_path]($before_repo_root_style)[$repo_root]($repo_root_style)[$path]($style)[$read_only]($read_only_style)[ ]($style)"
+before_repo_root_style = "bg:#121211 fg:#8c816b"
+repo_root_style = "bg:#121211 fg:#d5c4a1"
+read_only_style = "bg:#121211 fg:#52261a"                                                                                                                # maybe needs to change
+truncate_to_repo = true
 
 [character]
 success_symbol = "[%](240)"
@@ -21,20 +35,21 @@ format = " $symbol "
 format = "[ $symbol$branch]($style)"
 style = "bg:#21201e fg:#8c816b"
 symbol = ""
+truncation_length = 25
+truncation_symbol = "…"
 
 [git_status]
-format = '[$untracked$modified$conflicted$deleted$renamed$staged$stashed$ahead_behind ]($style)'
+format = '[$untracked$modified$conflicted$deleted$renamed$staged$ahead_behind ]($style)'
 style = "bg:#21201e fg:#8c816b"
 ahead = "↑${count}"
 behind = "↓${count}"
 diverged = "↑${ahead_count}↓${behind_count}"
-conflicted = "​"
+conflicted = "!"
 untracked = "*"
 modified = "*"
-staged = "​"
-renamed = "​"
-deleted = "​"
-stashed = ""
+staged = "+"
+renamed = "»"
+deleted = "x"
 
 [git_state]
 format = '([$state( $progress_current/$progress_total)]($style))'
@@ -42,48 +57,50 @@ style = "fg:#8c816b"
 
 [nodejs]
 format = " [$symbol($version)]($style)"
-style = "fg:#ab9d82"
-symbol = "⬢ "
+style = "fg:#5c574d"
+symbol = "node "
 
 [python]
 format = " [$symbol$pyenv_prefix($version)($virtualenv)]($style)"
-style = "fg:#ab9d82"
-symbol = "🐍 "
+style = "fg:#5c574d"
+symbol = "py "
+detect_files = ['.python-version', 'pyproject.toml']
+detect_extensions = [""]
 
 [rust]
 format = " [$symbol($version)]($style)"
-style = "fg:#ab9d82"
-symbol = "🦀 "
+style = "fg:#5c574d"
+symbol = "rust "
 
 [golang]
 format = " [$symbol($version)]($style)"
-style = "fg:#ab9d82"
-symbol = "🐹 "
+style = "fg:#5c574d"
+symbol = "go "
 
 [java]
 format = " [$symbol($version)]($style)"
-style = "fg:#ab9d82"
-symbol = "☕ "
+style = "fg:#5c574d"
+symbol = "java "
 
-[docker_context]
-format = " [$symbol$context]($style)"
-style = "fg:#8c816b"
-symbol = "🐳 "
+# [docker_context]
+# format = " [$symbol$context]($style)"
+# style = "fg:#8c816b"
+# symbol = " "
 
 [aws]
 format = " [$symbol($profile)(\\($region\\))(\\[$duration\\])]($style)"
 style = "fg:#8c816b"
-symbol = "☁️ "
+symbol = "aws "
 
-[gcloud]
-format = " [$symbol$account(@$domain)(\\($region\\))]($style)"
-style = "fg:#8c816b"
-symbol = "☁️ "
+# [gcloud]
+# format = " [$symbol$account(@$domain)(\\($region\\))]($style)"
+# style = "fg:#8c816b"
+# symbol = "☁️ "
 
-[package]
-format = " [$symbol$version]($style)"
-style = "fg:#ab9d82"
-symbol = "📦 "
+# [package]
+# format = " [$symbol$version]($style)"
+# style = "fg:#5c574d"
+# symbol = "📦 "
 
 [cmd_duration]
 format = " [$duration]($style)"
