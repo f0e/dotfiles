@@ -61,22 +61,6 @@ bindkey '\e[F' end-of-line # fn + right to end of line
 
 WORDCHARS="" # use native word separation behaviour
 
-# ────────────────────────────── plugins ──────────────────────────────
-
-plugins=(
-	zsh-users/zsh-completions
-	zdharma-continuum/fast-syntax-highlighting
-	zsh-users/zsh-autosuggestions
-	Aloxaf/fzf-tab
-	blimmer/zsh-aws-vault
-	zsh-users/zsh-history-substring-search
-)
-
-for plugin in "${plugins[@]}"; do
-	zinit ice wait lucid # loads asynchronously (wait = same as wait"0", lucid = no "Loaded x" message)
-	zinit light "$plugin"
-done
-
 # ────────────────────────────── prompt ──────────────────────────────
 autoload -Uz vcs_info
 precmd() { vcs_info }
@@ -172,11 +156,35 @@ show_uptime_header() {
 # Show header on shell start
 show_uptime_header
 
+# ────────────────────────────── plugins ──────────────────────────────
+
+plugins=(
+	zsh-users/zsh-completions
+	zdharma-continuum/fast-syntax-highlighting
+	zsh-users/zsh-autosuggestions
+	Aloxaf/fzf-tab
+	blimmer/zsh-aws-vault
+	zsh-users/zsh-history-substring-search
+)
+
+for plugin in "${plugins[@]}"; do
+	zinit ice wait lucid # loads asynchronously (wait = same as wait"0", lucid = no "Loaded x" message)
+	zinit light "$plugin"
+done
+
 # ────────────────────────────── tool activation ──────────────────────────────
 
-eval "$(fzf --zsh)" # fzf
-eval "$(mise activate zsh)" # mise
-eval "$(zoxide init zsh)" # zoxide
+activations=(
+	"fzf --zsh"
+	"mise activate zsh"
+	"zoxide init zsh"
+)
+
+# asynchronously run each activation script using zinit
+for activation in "${activations[@]}"; do
+	zinit ice wait lucid atload"eval \"\$($activation)\""
+	zinit light zdharma-continuum/null
+done
 
 # ────────────────────────────── scripts ──────────────────────────────
 
