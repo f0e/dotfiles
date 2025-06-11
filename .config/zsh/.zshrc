@@ -5,8 +5,6 @@
 # [ -f "$XDG_CONFIG_HOME/shell/vars" ] && source "$XDG_CONFIG_HOME/shell/vars"
 
 source /opt/homebrew/opt/zinit/zinit.zsh # zinit
-eval "$(fzf --zsh)" # fzf
-eval "$(mise activate zsh)" # mise
 
 # ────────────────────────────── modules ──────────────────────────────
 
@@ -47,7 +45,7 @@ setopt append_history inc_append_history share_history # better history
 # ────────────────────────────── general opts ──────────────────────────────
 
 setopt auto_menu menu_complete # show menu on first tab hit after partial completion
-# setopt autocd # type a dir to cd
+setopt autocd # type a dir to cd (nice zoxide fallback)
 setopt auto_param_slash # when a dir is completed, add a / instead of a trailing space
 setopt no_case_glob no_case_match # make cmp case insensitive
 setopt globdots # include dotfiles
@@ -57,6 +55,11 @@ unsetopt prompt_sp # don't autoclean blanklines
 
 # https://stackoverflow.com/a/42679697
 unsetopt nomatch
+
+bindkey '\e[H' beginning-of-line # fn + left to start of line
+bindkey '\e[F' end-of-line # fn + right to end of line
+
+WORDCHARS="" # use native word separation behaviour
 
 # ────────────────────────────── plugins ──────────────────────────────
 
@@ -168,3 +171,34 @@ show_uptime_header() {
 
 # Show header on shell start
 show_uptime_header
+
+# ────────────────────────────── tool activation ──────────────────────────────
+
+eval "$(fzf --zsh)" # fzf
+eval "$(mise activate zsh)" # mise
+eval "$(zoxide init zsh)" # zoxide
+
+# ────────────────────────────── scripts ──────────────────────────────
+
+# IMPORTANT: $PATH in sourced scripts is the path to the script itself.
+# So we assign the parent .zshrc PATH to MODIFIED_PATH and use that in sourced scripts.
+# We do this by re-assigning PATH in the sourced script to MODIFIED_PATH.
+# Then at the end of the sourced script we re-export the updated MODIFIED_PATH.
+# Later on you'll see us prefix this .zshrc PATH with MODIFIED_PATH.
+export MODIFIED_PATH="$PATH"
+
+function load_script {
+	local path=$1
+	if test -f $path; then
+		source $path
+	else
+		echo "ERROR: script $path not found"
+	fi
+}
+
+load_script "$XDG_CONFIG_HOME/zsh/bindings-Integralist.zsh"
+load_script "$XDG_CONFIG_HOME/zsh/tools.zsh"
+load_script "$XDG_CONFIG_HOME/zsh/functions.zsh"
+
+export PATH="$MODIFIED_PATH:$PATH"
+typeset -U path # dedupe
