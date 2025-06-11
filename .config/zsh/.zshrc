@@ -1,6 +1,6 @@
-# ────────────────────────────── options ──────────────────────────────
-
 PROFILE=0
+
+(( PROFILE )) && zmodload zsh/zprof
 
 # ────────────────────────────── scripts ──────────────────────────────
 
@@ -23,17 +23,12 @@ function load_script {
 load_script "$XDG_CONFIG_HOME/zsh/bindings-Integralist.zsh"
 load_script "$XDG_CONFIG_HOME/zsh/tools.zsh"
 load_script "$XDG_CONFIG_HOME/zsh/functions.zsh"
+load_script "$XDG_CONFIG_HOME/shell/alias.sh"
 
 export PATH="$MODIFIED_PATH:$PATH"
 typeset -U path # dedupe
 
 # ────────────────────────────── init ──────────────────────────────
-
-(( PROFILE )) && zmodload zsh/zprof
-
-# source global shell alias & variables files
-[ -f "$XDG_CONFIG_HOME/shell/alias" ] && source "$XDG_CONFIG_HOME/shell/alias"
-# [ -f "$XDG_CONFIG_HOME/shell/vars" ] && source "$XDG_CONFIG_HOME/shell/vars"
 
 source /opt/homebrew/opt/zinit/zinit.zsh # zinit
 
@@ -187,6 +182,10 @@ for activation in "${activations[@]}"; do
 	zinit light zdharma-continuum/null
 done
 
+# ────────────────────────────── prompt ──────────────────────────────
+
 eval "$(starship init zsh)"
+
+# ────────────────────────────────────────────────────────────
 
 (( PROFILE )) && zprof

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+alias ls='eza'
+alias l='eza -lbF --git'
+alias ll='eza -lbGF --git'
+alias llm='eza -lbGd --git --sort=modified'
+alias la='eza -lbhHigUmuSa --time-style=long-iso --git --color-scale'
+alias lx='eza -lbhHigUmuSa@ --time-style=long-iso --git --color-scale'
+alias lS='eza -1'
+alias lt='eza --tree --level=2'
+alias l.='eza -a | grep -E "^\."'
+alias cd='z'
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
