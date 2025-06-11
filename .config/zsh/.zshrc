@@ -2,6 +2,31 @@
 
 PROFILE=0
 
+# ────────────────────────────── scripts ──────────────────────────────
+
+# IMPORTANT: $PATH in sourced scripts is the path to the script itself.
+# So we assign the parent .zshrc PATH to MODIFIED_PATH and use that in sourced scripts.
+# We do this by re-assigning PATH in the sourced script to MODIFIED_PATH.
+# Then at the end of the sourced script we re-export the updated MODIFIED_PATH.
+# Later on you'll see us prefix this .zshrc PATH with MODIFIED_PATH.
+export MODIFIED_PATH="$PATH"
+
+function load_script {
+	local path=$1
+	if test -f $path; then
+		source $path
+	else
+		echo "ERROR: script $path not found"
+	fi
+}
+
+load_script "$XDG_CONFIG_HOME/zsh/bindings-Integralist.zsh"
+load_script "$XDG_CONFIG_HOME/zsh/tools.zsh"
+load_script "$XDG_CONFIG_HOME/zsh/functions.zsh"
+
+export PATH="$MODIFIED_PATH:$PATH"
+typeset -U path # dedupe
+
 # ────────────────────────────── init ──────────────────────────────
 
 (( PROFILE )) && zmodload zsh/zprof
@@ -161,31 +186,6 @@ for activation in "${activations[@]}"; do
 	zinit ice wait lucid atload"eval \"\$($activation)\""
 	zinit light zdharma-continuum/null
 done
-
-# ────────────────────────────── scripts ──────────────────────────────
-
-# IMPORTANT: $PATH in sourced scripts is the path to the script itself.
-# So we assign the parent .zshrc PATH to MODIFIED_PATH and use that in sourced scripts.
-# We do this by re-assigning PATH in the sourced script to MODIFIED_PATH.
-# Then at the end of the sourced script we re-export the updated MODIFIED_PATH.
-# Later on you'll see us prefix this .zshrc PATH with MODIFIED_PATH.
-export MODIFIED_PATH="$PATH"
-
-function load_script {
-	local path=$1
-	if test -f $path; then
-		source $path
-	else
-		echo "ERROR: script $path not found"
-	fi
-}
-
-load_script "$XDG_CONFIG_HOME/zsh/bindings-Integralist.zsh"
-load_script "$XDG_CONFIG_HOME/zsh/tools.zsh"
-load_script "$XDG_CONFIG_HOME/zsh/functions.zsh"
-
-export PATH="$MODIFIED_PATH:$PATH"
-typeset -U path # dedupe
 
 eval "$(starship init zsh)"
 

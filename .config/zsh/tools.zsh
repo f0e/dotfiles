@@ -23,11 +23,45 @@ typeset -a tools=(
   fzf                # fuzzy finder
   "difftastic:difft" # syntax-aware git diff (ignoring indentation changes, etc)
   yadm               # dotfiles management
+  zinit              # zsh plugin manager
 )
 
 typeset -a fonts=(
   "font-geist-mono-nerd-font:*GeistMono*Nerd*"
 )
+
+check_zinit() {
+  local zinit_paths=(
+    "${HOMEBREW_PREFIX:-/opt/homebrew}/opt/zinit"
+  )
+
+  for zinit_path in "${zinit_paths[@]}"; do
+    if [[ -d "$zinit_path" ]]; then
+      return 0
+    fi
+  done
+
+  # Also check if zinit command is available (in case it's sourced)
+  if typeset -f zinit >/dev/null 2>&1; then
+    return 0
+  fi
+
+  return 1
+}
+
+check_tool_installed() {
+  local formula="$1"
+  local executable="$2"
+
+  case "$formula" in
+  zinit)
+    check_zinit
+    ;;
+  *)
+    command -v "$executable" >/dev/null 2>&1
+    ;;
+  esac
+}
 
 # collect missing tools
 typeset -a missing_formulas=()
@@ -41,7 +75,7 @@ for tool_spec in "${tools[@]}"; do
     executable="$tool_spec"
   fi
 
-  if ! command -v "$executable" >/dev/null 2>&1; then
+  if ! check_tool_installed "$formula" "$executable"; then
     echo "$executable not found."
     missing_formulas+=("$formula")
   elif ((VERBOSE)); then
