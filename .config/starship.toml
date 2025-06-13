@@ -59,6 +59,7 @@ style = "fg:#8c816b"
 format = " [$symbol($version)]($style)"
 style = "fg:#5c574d"
 symbol = "node "
+detect_extensions = [""]
 
 [python]
 format = " [$symbol$pyenv_prefix($version)($virtualenv)]($style)"
@@ -71,16 +72,19 @@ detect_extensions = [""]
 format = " [$symbol($version)]($style)"
 style = "fg:#5c574d"
 symbol = "rust "
+detect_extensions = [""]
 
 [golang]
 format = " [$symbol($version)]($style)"
 style = "fg:#5c574d"
 symbol = "go "
+detect_extensions = [""]
 
 [java]
 format = " [$symbol($version)]($style)"
 style = "fg:#5c574d"
 symbol = "java "
+detect_extensions = [""]
 
 # [docker_context]
 # format = " [$symbol$context]($style)"
