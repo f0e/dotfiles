@@ -1,10 +1,20 @@
 #!/usr/bin/env zsh
 
-VERBOSE=0
+# shellcheck disable=SC1036,SC1072,SC1073,SC1009
 
 # IMPORTANT: We MUST use MODIFIED_PATH (see notes in ~/.zshrc).
 # Otherwise tools like curl, sh etc can't be found otherwise.
 export PATH="$MODIFIED_PATH"
+
+VERBOSE=0
+
+# only run every hour
+last_run_file="${XDG_CACHE_HOME:-$HOME/.cache}/tool_check_last_run"
+if [[ -f $last_run_file && -n $last_run_file(#qN.mh+1) ]]; then
+  return
+fi
+echo checking tools
+touch "$last_run_file"
 
 typeset -a tools=(
   # shell command replacements
@@ -28,6 +38,7 @@ typeset -a tools=(
   curlie             # nicer curl
   hyperfine          # benchmarker
   hexyl              # cli hex viewer
+  atuin              # better terminal history
 )
 
 typeset -a fonts=(

@@ -1,6 +1,11 @@
+# shellcheck disable=SC1036,SC1072,SC1073,SC1009
+
+# # if not running interactively, don't do anything
+# [[ $- != *i* ]] && return
+
 PROFILE=0
 
-(( PROFILE )) && zmodload zsh/zprof
+((PROFILE)) && zmodload zsh/zprof
 
 # ────────────────────────────── scripts ──────────────────────────────
 
@@ -12,63 +17,22 @@ PROFILE=0
 export MODIFIED_PATH="$PATH"
 
 function load_script {
-	local path=$1
-	if test -f $path; then
-		source $path
-	else
-		echo "ERROR: script $path not found"
-	fi
+  local path=$1
+  if test -f $path; then
+    source $path
+  else
+    print -u2 -- "ERROR: script '$path' not found"
+  fi
 }
 
-load_script "$XDG_CONFIG_HOME/zsh/bindings-Integralist.zsh"
+# anything that modifies path or is required by stuff in zshrc, call it here.
+# otherwise, defer (see below)
 load_script "$XDG_CONFIG_HOME/zsh/tools.zsh"
-load_script "$XDG_CONFIG_HOME/zsh/functions.zsh"
-load_script "$XDG_CONFIG_HOME/shell/alias.sh"
 
 export PATH="$MODIFIED_PATH:$PATH"
 typeset -U path # dedupe
 
-# ────────────────────────────── init ──────────────────────────────
-
-source /opt/homebrew/opt/zinit/zinit.zsh # zinit
-
-# ────────────────────────────── modules ──────────────────────────────
-
-autoload -U compinit && compinit
-autoload -U colors && colors
-
-# ────────────────────────────── cmp opts ──────────────────────────────
-
-zstyle ':completion:*' menu select
-
-# disable sort when completing `git checkout`
-zstyle ':completion:*:git-checkout:*' sort false
-# set descriptions format to enable group support
-# NOTE: don't use escape sequences (like '%F{red}%d%f') here, fzf-tab will ignore them
-zstyle ':completion:*:descriptions' format '[%d]'
-# set list-colors to enable filename colorizing
-zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
-
-# preview directory's content with eza when completing cd
-zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
-# custom fzf flags
-# To make fzf-tab follow FZF_DEFAULT_OPTS.
-# NOTE: This may lead to unexpected behavior since some flags break this plugin. See Aloxaf/fzf-tab#455.
-zstyle ':fzf-tab:*' use-fzf-default-opts yes
-# switch group using `<` and `>`
-zstyle ':fzf-tab:*' switch-group '<' '>'
-
-# ────────────────────────────── history opts ──────────────────────────────
-
-HISTSIZE=1000000
-SAVEHIST=1000000
-HISTFILE="$XDG_CACHE_HOME/zsh_history" # move histfile to cache
-HISTCONTROL=ignoreboth # consecutive duplicates & commands starting with space are not saved
-
-setopt append_history inc_append_history share_history # better history
-# on exit, history appends rather than overwrites; history is appended as soon as cmds executed; history shared across sessions
-
-# ────────────────────────────── general opts ──────────────────────────────
+# ────────────────────────────── opts ──────────────────────────────
 
 setopt auto_menu menu_complete # show menu on first tab hit after partial completion
 setopt autocd # type a dir to cd (nice zoxide fallback)
@@ -87,6 +51,93 @@ bindkey '\e[F' end-of-line # fn + right to end of line
 
 WORDCHARS="" # use native word separation behaviour
 
+# ────────────────────────────── history opts ──────────────────────────────
+
+HISTSIZE=1000000
+SAVEHIST=1000000
+HISTFILE="$XDG_CACHE_HOME/zsh_history" # move histfile to cache
+HISTCONTROL=ignoreboth # consecutive duplicates & commands starting with space are not saved
+
+setopt append_history # on exit, history appends rather than overwrites
+setopt inc_append_history # history is appended as soon as cmds executed
+setopt share_history # history shared across sessions
+
+# ────────────────────────────── prompt ──────────────────────────────
+
+eval "$(starship init zsh)"
+
+# ────────────────────────────── zinit ──────────────────────────────
+
+source $(brew --prefix)/opt/zinit/zinit.zsh
+
+# completions
+run_compinit() {
+  autoload -Uz compinit
+  local zcompdump=${ZDOTDIR:-$HOME}/.zcompdump
+  if [[ ! -f $zcompdump || -n $zcompdump(#qN.md+1) ]]; then
+    compinit -d $zcompdump
+  else
+    compinit -C -d $zcompdump
+  fi
+}
+
+export FORGIT_NO_ALIASES=1 # https://github.com/wfxr/forgit#shell-aliases i dont like them
+
+zinit wait lucid for \
+  `# completions` \
+  atload'run_compinit' \
+    zdharma-continuum/null \
+  \
+  `# plugins` \
+    zsh-users/zsh-completions \
+    zdharma-continuum/fast-syntax-highlighting \
+    zsh-users/zsh-autosuggestions \
+    zsh-users/zsh-history-substring-search \
+    Aloxaf/fzf-tab \
+    blimmer/zsh-aws-vault \
+    mroth/evalcache \
+  atload'PATH="$PATH:$FORGIT_INSTALL_DIR/bin"' \
+    wfxr/forgit \
+  \
+  `# deferred scripts` \
+  atload"load_script '$XDG_CONFIG_HOME/zsh/bindings-Integralist.zsh'" \
+  atload"load_script '$XDG_CONFIG_HOME/zsh/functions.zsh'" \
+  atload"load_script '$XDG_CONFIG_HOME/shell/alias.sh'" \
+    zdharma-continuum/null \
+  \
+  `# tool activations` \
+  atload'_evalcache fzf --zsh' \
+  atload'_evalcache mise activate zsh' \
+  atload'_evalcache zoxide init zsh' \
+  atload'_evalcache atuin init zsh --disable-up-arrow' \
+    zdharma-continuum/null
+
+# ────────────────────────────── completion styles ──────────────────────────────
+
+cmp_opts() {
+  zstyle ':completion:*' menu select
+
+  # disable sort when completing `git checkout`
+  zstyle ':completion:*:git-checkout:*' sort false
+  # set descriptions format to enable group support
+  # NOTE: don't use escape sequences (like '%F{red}%d%f') here, fzf-tab will ignore them
+  zstyle ':completion:*:descriptions' format '[%d]'
+  # set list-colors to enable filename colorizing
+  zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+
+  # preview directory's content with eza when completing cd
+  zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
+  # custom fzf flags
+  # To make fzf-tab follow FZF_DEFAULT_OPTS.
+  # NOTE: This may lead to unexpected behavior since some flags break this plugin. See Aloxaf/fzf-tab#455.
+  zstyle ':fzf-tab:*' use-fzf-default-opts yes
+  # switch group using `<` and `>`
+  zstyle ':fzf-tab:*' switch-group '<' '>'
+}
+
+zinit ice wait'2' lucid atload'cmp_opts'
+zinit light zdharma-continuum/null
+
 # ────────────────────────────── header ──────────────────────────────
 
 COLOUR_BG_DARK="#121211"
@@ -96,96 +147,60 @@ COLOUR_FG_DARK="#ab9d82"
 COLOUR_FG_DIM="#8c816b"
 
 show_uptime_header() {
-	local uptime_output shell_path
-	
-	# Get shell path once
-	shell_path=${SHELL:-$0}
-	
-	# Parse uptime in a single read, avoiding multiple subprocess calls
-	uptime_output=$(uptime | sed -E 's/.*up ([^,]*), [0-9]+ user.*/\1/' | awk '{
-		output = ""
-		
-		# Check for days
-		for (i=1; i<=NF; i++) {
-			if ($i ~ /^[0-9]+$/ && $(i+1) ~ /^day/) {
-				output = $i " days"
-				break
-			}
-		}
-		
-		# Check for time format (hours:minutes)
-		for (i=1; i<=NF; i++) {
-			if ($i ~ /^[0-9]+:[0-9]+$/) {
-				split($i, time_arr, ":")
-				hours = time_arr[1]
-				minutes = time_arr[2]
-				
-				if (output) output = output ", "
-				if (hours > 0) output = output hours " hours"
-				if (minutes > 0) {
-					if (hours > 0) output = output ", "
-					output = output minutes " minutes"  
-				}
-				found_time = 1
-				break
-			}
-		}
-		
-		# Check for minutes only (if no time format found)
-		if (!found_time) {
-			for (i=1; i<=NF; i++) {
-				if ($i ~ /^[0-9]+$/ && $(i+1) ~ /^min/) {
-					if (output) output = output ", "
-					output = output $i " minutes"
-					break
-				}
-			}
-		}
-		
-		print output
-	}')
-	
-	# Single print statement
-	print -P "%K{$COLOUR_BG_DARK}%F{$COLOUR_FG_DIM} ${shell_path} %K{$COLOUR_BG_LIGHT}%F{$COLOUR_FG_DARK} up ${uptime_output} %k%f"
+  local shell_path uptime_str uptime_part days="" hours="" minutes="" readable_uptime=""
+  shell_path=${SHELL:-$0}
+  uptime_str=$(uptime)
+
+  # Extract part after "up " and before "user"
+  uptime_part=${uptime_str#*up }
+  uptime_part=${uptime_part%% user*}
+
+  # Check for "X day(s)"
+  if [[ $uptime_part =~ ([0-9]+)\ day ]]; then
+    days=${match[1]##0}
+    [[ -z $days ]] && days=0
+    days="$days day"
+    [[ $days != "1 day" ]] && days+="s"
+  fi
+
+  # Check for HH:MM format
+  if [[ $uptime_part =~ ([0-9]+):([0-9]+) ]]; then
+    hours=${match[1]##0}
+    minutes=${match[2]##0}
+    [[ -z $hours ]] && hours=0
+    [[ -z $minutes ]] && minutes=0
+
+    [[ $hours -gt 0 ]] && hours="$hours hour$([[ $hours -eq 1 ]] || echo s)"
+    [[ $minutes -gt 0 ]] && minutes="$minutes minute$([[ $minutes -eq 1 ]] || echo s)"
+  elif [[ $uptime_part =~ ([0-9]+)\ min ]]; then
+    minutes=${match[1]##0}
+    [[ -z $minutes ]] && minutes=0
+    minutes="$minutes minute$([[ $minutes -eq 1 ]] || echo s)"
+  fi
+
+  # Build readable uptime string
+  [[ -n $days ]] && readable_uptime+="$days"
+  [[ -n $hours ]] && readable_uptime+="${readable_uptime:+, }$hours"
+  [[ -n $minutes ]] && readable_uptime+="${readable_uptime:+, }$minutes"
+
+  echo "%K{$COLOUR_BG_DARK}%F{$COLOUR_FG_DIM} ${shell_path} %K{$COLOUR_BG_LIGHT}%F{$COLOUR_FG_DARK} up ${readable_uptime} %k%f"
 }
 
-# Show header on shell start
-show_uptime_header
+# Precalculate the header
+__uptime_header=$(show_uptime_header)
 
-# ────────────────────────────── plugins ──────────────────────────────
+# Register a precmd hook to print it once
+__show_header_once=true
+autoload -Uz add-zsh-hook
+add-zsh-hook precmd show_uptime_header_once
 
-plugins=(
-	zsh-users/zsh-completions
-	zdharma-continuum/fast-syntax-highlighting
-	zsh-users/zsh-autosuggestions
-	Aloxaf/fzf-tab
-	blimmer/zsh-aws-vault
-	zsh-users/zsh-history-substring-search
-)
+show_uptime_header_once() {
+  if [[ $__show_header_once == true ]]; then
+    print -P "$__uptime_header"
+    __show_header_once=false
+  fi
+}
 
-for plugin in "${plugins[@]}"; do
-	zinit ice wait lucid # loads asynchronously (wait = same as wait"0", lucid = no "Loaded x" message)
-	zinit light "$plugin"
-done
+# ────────────────────────────────────────────────────────
 
-# ────────────────────────────── tool activation ──────────────────────────────
-
-activations=(
-	"fzf --zsh"
-	"mise activate zsh"
-	"zoxide init zsh"
-)
-
-# asynchronously run each activation script using zinit
-for activation in "${activations[@]}"; do
-	zinit ice wait lucid atload"eval \"\$($activation)\""
-	zinit light zdharma-continuum/null
-done
-
-# ────────────────────────────── prompt ──────────────────────────────
-
-eval "$(starship init zsh)"
-
-# ────────────────────────────────────────────────────────────
-
-(( PROFILE )) && zprof
+((PROFILE)) && zprof
