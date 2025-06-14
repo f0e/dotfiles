@@ -68,7 +68,7 @@ eval "$(starship init zsh)"
 
 # ────────────────────────────── zinit ──────────────────────────────
 
-source $(brew --prefix)/opt/zinit/zinit.zsh
+source "${HOMEBREW_PREFIX:-/opt/homebrew}/opt/zinit/zinit.zsh"
 
 # completions
 run_compinit() {
