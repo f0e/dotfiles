@@ -1,0 +1,58 @@
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+
+[core]
+	excludesfile = ~/.gitignore_global
+	editor = "nvim"
+	pager = delta
+
+[init]
+	defaultBranch = main
+
+[pull]
+	rebase = true
+
+[merge]
+	# conflictstyle = diff3
+	conflictstyle = zdiff3
+
+[diff]
+	algorithm = histogram
+	# colorMoved = default
+	# tool = difftastic
+
+[branch]
+	sort = -committerdate
+
+[gpg]
+	format = ssh
+
+[alias]
+	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
+
+	# `git log` with patches shown with difftastic.
+	dl = -c diff.external=difft log -p --ext-diff
+
+	# Show the most recent commit with difftastic.
+	ds = -c diff.external=difft show --ext-diff
+
+	# `git diff` with difftastic.
+	dft = -c diff.external=difft diff
+
+# [includeIf "gitdir:~/desktop/personal"]
+#     path = ".gitconfig-personal"
+
+# [format]
+#     pretty = format:%C(auto)%h %C(cyan)%ad %Cgreen%an%Creset %s
+
+# delta
+[interactive]
+	diffFilter = delta --color-only
+
+[delta]
+	navigate = true  # use n and N to move between diff sections
+	dark = true      # or light = true, or omit for auto-detection
+	line-numbers = true
