@@ -33,12 +33,13 @@ typeset -a tools=(
   fzf                # fuzzy finder
   "difftastic:difft" # syntax-aware git diff (ignoring indentation changes, etc)
   yadm               # dotfiles management
-  zinit              # zsh plugin manager
+  antidote           # zsh plugin manager
   gron               # make json greppable (e.g. gron [json] | rg key.key2)
   curlie             # nicer curl
   hyperfine          # benchmarker
   hexyl              # cli hex viewer
   atuin              # better terminal history
+  csvlens            # csv viewer
 )
 
 typeset -a fonts=(

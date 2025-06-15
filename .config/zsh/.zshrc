@@ -1,7 +1,7 @@
 # shellcheck disable=SC1036,SC1072,SC1073,SC1009
 
-# # if not running interactively, don't do anything
-# [[ $- != *i* ]] && return
+# if not running interactively, don't do anything
+[[ $- != *i* ]] && return
 
 PROFILE=0
 
@@ -62,81 +62,53 @@ setopt append_history # on exit, history appends rather than overwrites
 setopt inc_append_history # history is appended as soon as cmds executed
 setopt share_history # history shared across sessions
 
-# ────────────────────────────── prompt ──────────────────────────────
-
-eval "$(starship init zsh)"
-
-# ────────────────────────────── zinit ──────────────────────────────
-
-source "${HOMEBREW_PREFIX:-/opt/homebrew}/opt/zinit/zinit.zsh"
-
-# completions
-run_compinit() {
-  autoload -Uz compinit
-  local zcompdump=${ZDOTDIR:-$HOME}/.zcompdump
-  if [[ ! -f $zcompdump || -n $zcompdump(#qN.md+1) ]]; then
-    compinit -d $zcompdump
-  else
-    compinit -C -d $zcompdump
-  fi
-}
+# ────────────────────────────── antidote ──────────────────────────────
 
 export FORGIT_NO_ALIASES=1 # https://github.com/wfxr/forgit#shell-aliases i dont like them
 
-zinit wait lucid for \
-  `# completions` \
-  atload'run_compinit' \
-    zdharma-continuum/null \
-  \
-  `# plugins` \
-    zsh-users/zsh-completions \
-    zdharma-continuum/fast-syntax-highlighting \
-    zsh-users/zsh-autosuggestions \
-    zsh-users/zsh-history-substring-search \
-    Aloxaf/fzf-tab \
-    blimmer/zsh-aws-vault \
-    mroth/evalcache \
-  atload'PATH="$PATH:$FORGIT_INSTALL_DIR/bin"' \
-    wfxr/forgit \
-  \
-  `# deferred scripts` \
-  atload"load_script '$XDG_CONFIG_HOME/zsh/bindings-Integralist.zsh'" \
-  atload"load_script '$XDG_CONFIG_HOME/zsh/functions.zsh'" \
-  atload"load_script '$XDG_CONFIG_HOME/shell/alias.sh'" \
-    zdharma-continuum/null \
-  \
-  `# tool activations` \
-  atload'_evalcache fzf --zsh' \
-  atload'_evalcache mise activate zsh' \
-  atload'_evalcache zoxide init zsh' \
-  atload'_evalcache atuin init zsh --disable-up-arrow' \
-    zdharma-continuum/null
+# Lazy-load antidote and generate the static load file only when needed
+zsh_plugins=${ZDOTDIR:-$HOME}/.zsh_plugins
+if [[ ! ${zsh_plugins}.zsh -nt ${zsh_plugins}.txt ]]; then
+  (
+    source "${HOMEBREW_PREFIX:-/opt/homebrew}/opt/antidote/share/antidote/antidote.zsh"
+    antidote bundle <${zsh_plugins}.txt >${zsh_plugins}.zsh
+  )
+fi
+source ${zsh_plugins}.zsh
+
+PATH="$PATH:$FORGIT_INSTALL_DIR/bin"
+
+_evalcache starship init zsh
+
+zsh-defer _evalcache fzf --zsh
+zsh-defer _evalcache mise activate zsh
+zsh-defer _evalcache zoxide init zsh
+zsh-defer _evalcache atuin init zsh --disable-up-arrow
+
+zsh-defer load_script "$XDG_CONFIG_HOME/zsh/bindings-Integralist.zsh"
+zsh-defer load_script "$XDG_CONFIG_HOME/zsh/functions.zsh"
+zsh-defer load_script "$XDG_CONFIG_HOME/shell/alias.sh"
 
 # ────────────────────────────── completion styles ──────────────────────────────
 
-cmp_opts() {
-  zstyle ':completion:*' menu select
+zstyle ':completion:*' menu select
 
-  # disable sort when completing `git checkout`
-  zstyle ':completion:*:git-checkout:*' sort false
-  # set descriptions format to enable group support
-  # NOTE: don't use escape sequences (like '%F{red}%d%f') here, fzf-tab will ignore them
-  zstyle ':completion:*:descriptions' format '[%d]'
-  # set list-colors to enable filename colorizing
-  zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+# disable sort when completing `git checkout`
+zstyle ':completion:*:git-checkout:*' sort false
+# set descriptions format to enable group support
+# NOTE: don't use escape sequences (like '%F{red}%d%f') here, fzf-tab will ignore them
+zstyle ':completion:*:descriptions' format '[%d]'
+# set list-colors to enable filename colorizing
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 
-  # preview directory's content with eza when completing cd
-  zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
-  # custom fzf flags
-  # To make fzf-tab follow FZF_DEFAULT_OPTS.
-  # NOTE: This may lead to unexpected behavior since some flags break this plugin. See Aloxaf/fzf-tab#455.
-  zstyle ':fzf-tab:*' use-fzf-default-opts yes
-  # switch group using `<` and `>`
-  zstyle ':fzf-tab:*' switch-group '<' '>'
-}
-
-zinit ice wait'2' lucid atload'cmp_opts'
-zinit light zdharma-continuum/null
+# preview directory's content with eza when completing cd
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
+# custom fzf flags
+# To make fzf-tab follow FZF_DEFAULT_OPTS.
+# NOTE: This may lead to unexpected behavior since some flags break this plugin. See Aloxaf/fzf-tab#455.
+zstyle ':fzf-tab:*' use-fzf-default-opts yes
+# switch group using `<` and `>`
+zstyle ':fzf-tab:*' switch-group '<' '>'
 
 # ────────────────────────────── header ──────────────────────────────
 
@@ -183,23 +155,10 @@ show_uptime_header() {
   [[ -n $hours ]] && readable_uptime+="${readable_uptime:+, }$hours"
   [[ -n $minutes ]] && readable_uptime+="${readable_uptime:+, }$minutes"
 
-  echo "%K{$COLOUR_BG_DARK}%F{$COLOUR_FG_DIM} ${shell_path} %K{$COLOUR_BG_LIGHT}%F{$COLOUR_FG_DARK} up ${readable_uptime} %k%f"
+  print -P "%K{$COLOUR_BG_DARK}%F{$COLOUR_FG_DIM} ${shell_path} %K{$COLOUR_BG_LIGHT}%F{$COLOUR_FG_DARK} up ${readable_uptime} %k%f"
 }
 
-# Precalculate the header
-__uptime_header=$(show_uptime_header)
-
-# Register a precmd hook to print it once
-__show_header_once=true
-autoload -Uz add-zsh-hook
-add-zsh-hook precmd show_uptime_header_once
-
-show_uptime_header_once() {
-  if [[ $__show_header_once == true ]]; then
-    print -P "$__uptime_header"
-    __show_header_once=false
-  fi
-}
+show_uptime_header
 
 # ────────────────────────────────────────────────────────
 
