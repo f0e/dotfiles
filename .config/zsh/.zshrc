@@ -32,6 +32,15 @@ load_script "$XDG_CONFIG_HOME/zsh/tools.zsh"
 export PATH="$MODIFIED_PATH:$PATH"
 typeset -U path # dedupe
 
+# ────────────────────────────── p10k instant prompt ──────────────────────────────
+
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.config/zsh/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 # ────────────────────────────── opts ──────────────────────────────
 
 setopt auto_menu menu_complete # show menu on first tab hit after partial completion
@@ -158,7 +167,12 @@ show_uptime_header() {
   print -P "%K{$COLOUR_BG_DARK}%F{$COLOUR_FG_DIM} ${shell_path} %K{$COLOUR_BG_LIGHT}%F{$COLOUR_FG_DARK} up ${readable_uptime} %k%f"
 }
 
-show_uptime_header
+# show_uptime_header
+
+# ────────────────────────────── p10k prompt ──────────────────────────────
+
+# To customize prompt, run `p10k configure` or edit ~/.config/zsh/.p10k.zsh.
+[[ ! -f ~/.config/zsh/.p10k.zsh ]] || source ~/.config/zsh/.p10k.zsh
 
 # ────────────────────────────────────────────────────────
 
