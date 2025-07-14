@@ -27,7 +27,6 @@ export PATH="$HOME/.local/bin:$PATH"             # uv
 export PATH="/opt/homebrew/opt/cython/bin:$PATH" # cython
 export PATH=$(brew --prefix llvm)/bin:$PATH      # prioritise brew llvm over mac clang stuff
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"  # postgres tools like psql
-export PATH="~/Downloads/fixed-mise:$PATH"       # prioritise fixed mise
 
 # misc
 export LESS='-R --mouse' # https://github.com/dandavison/delta/issues/630#issuecomment-2003149860
