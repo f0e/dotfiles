@@ -81,9 +81,7 @@ setopt append_history # on exit, history appends rather than overwrites
 setopt inc_append_history # history is appended as soon as cmds executed
 setopt share_history # history shared across sessions
 
-# ────────────────────────────── antidote ──────────────────────────────
-
-export FORGIT_NO_ALIASES=1 # https://github.com/wfxr/forgit#shell-aliases i dont like them
+# ────────────────────────────── plugins (antidote) ──────────────────────────────
 
 # Lazy-load antidote and generate the static load file only when needed
 zsh_plugins=${ZDOTDIR:-$HOME}/.zsh_plugins
@@ -93,6 +91,10 @@ if [[ ! ${zsh_plugins}.zsh -nt ${zsh_plugins}.txt ]]; then
     antidote bundle <${zsh_plugins}.txt >${zsh_plugins}.zsh
   )
 fi
+
+export FORGIT_NO_ALIASES=1 # https://github.com/wfxr/forgit#shell-aliases i dont like them
+
+# load plugins
 source ${zsh_plugins}.zsh
 
 PATH="$PATH:$FORGIT_INSTALL_DIR/bin"
