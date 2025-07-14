@@ -29,6 +29,14 @@ function load_script {
 # otherwise, defer (see below)
 load_script "$XDG_CONFIG_HOME/zsh/tools.zsh"
 
+# cursor fix (https://forum.cursor.com/t/cursor-agent-terminal-doesn-t-work-well-with-powerlevel10k-oh-my-zsh/96808/12)
+if [[ -n $CURSOR_TRACE_ID ]]; then
+  PROMPT_EOL_MARK=""
+  load_script "$XDG_CONFIG_HOME/zsh/iterm2_shell_integration.zsh"
+  precmd() { print -Pn "\e]133;D;%?\a" }
+  preexec() { print -Pn "\e]133;C;\a" }
+fi
+
 export PATH="$MODIFIED_PATH:$PATH"
 typeset -U path # dedupe
 
@@ -39,16 +47,6 @@ typeset -U path # dedupe
 # confirmations, etc.) must go above this block; everything else may go below.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
-# ────────────────────────────── cursor ──────────────────────────────
-# https://forum.cursor.com/t/cursor-agent-terminal-doesn-t-work-well-with-powerlevel10k-oh-my-zsh/96808/12
-
-if [[ -n $CURSOR_TRACE_ID ]]; then
-  PROMPT_EOL_MARK=""
-  load_script "$XDG_CONFIG_HOME/zsh/iterm2_shell_integration.zsh"
-  precmd() { print -Pn "\e]133;D;%?\a" }
-  preexec() { print -Pn "\e]133;C;\a" }
 fi
 
 # ────────────────────────────── opts ──────────────────────────────
