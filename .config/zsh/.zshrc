@@ -99,7 +99,10 @@ source ${zsh_plugins}.zsh
 
 PATH="$PATH:$FORGIT_INSTALL_DIR/bin" # https://github.com/wfxr/forgit#git-integration
 
-_evalcache starship init zsh
+# zsh-history-substring-search configuration
+bindkey '^[[A' history-substring-search-up # or '\eOA'
+bindkey '^[[B' history-substring-search-down # or '\eOB'
+HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE=1
 
 zsh-defer _evalcache fzf --zsh
 zsh-defer _evalcache mise activate zsh
