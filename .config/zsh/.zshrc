@@ -118,6 +118,9 @@ load_script "$XDG_CONFIG_HOME/shell/alias.sh"
 
 # ────────────────────────────── completion styles ──────────────────────────────
 
+# set up LS_COLORS
+export LS_COLORS="$(vivid generate catppuccin-mocha)"
+
 # force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
 zstyle ':completion:*' menu no
 

@@ -40,6 +40,7 @@ typeset -a tools=(
   hexyl              # cli hex viewer
   atuin              # better terminal history
   csvlens            # csv viewer
+  vivid              # LS_COLORS generator
 )
 
 typeset -a fonts=(
