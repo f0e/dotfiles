@@ -118,7 +118,8 @@ load_script "$XDG_CONFIG_HOME/shell/alias.sh"
 
 # ────────────────────────────── completion styles ──────────────────────────────
 
-zstyle ':completion:*' menu select
+# force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
+zstyle ':completion:*' menu no
 
 # disable sort when completing `git checkout`
 zstyle ':completion:*:git-checkout:*' sort false
