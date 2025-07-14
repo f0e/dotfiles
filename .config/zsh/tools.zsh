@@ -1,18 +1,19 @@
 #!/usr/bin/env zsh
 
-# shellcheck disable=SC1036,SC1072,SC1073,SC1009
-
 # IMPORTANT: We MUST use MODIFIED_PATH (see notes in ~/.zshrc).
 # Otherwise tools like curl, sh etc can't be found otherwise.
 export PATH="$MODIFIED_PATH"
 
 VERBOSE=0
 
-# only run every hour
+# only run every hour, or if this script has been modified
 last_run_file="${XDG_CACHE_HOME:-$HOME/.cache}/tool_check_last_run"
-if [[ -f $last_run_file && -n $last_run_file(#qN.mh+1) ]]; then
+tools_script="${(%):-%x}"
+
+if [[ -f "$last_run_file" && "$last_run_file"(mh-1) && ! "$tools_script" -nt "$last_run_file" ]]; then
   return
 fi
+
 echo checking tools
 touch "$last_run_file"
 
@@ -41,28 +42,28 @@ typeset -a tools=(
   atuin              # better terminal history
   csvlens            # csv viewer
   vivid              # LS_COLORS generator
+  pastel             # color manipulation tool
 )
 
 typeset -a fonts=(
   "font-geist-mono-nerd-font:*GeistMono*Nerd*"
 )
 
-check_zinit() {
-  local zinit_paths=(
-    "${HOMEBREW_PREFIX:-/opt/homebrew}/opt/zinit"
-  )
-
-  for zinit_path in "${zinit_paths[@]}"; do
-    if [[ -d "$zinit_path" ]]; then
-      return 0
-    fi
-  done
-
-  # Also check if zinit command is available (in case it's sourced)
-  if typeset -f zinit >/dev/null 2>&1; then
+check_sourced_tool() {
+  local tool_name="$1"
+  local check_type="$2"  # 'file' or 'dir'
+  local path="$3"
+  
+  # check if the file/directory exists
+  if [[ "$check_type" == "file" && -f "$path" ]] || [[ "$check_type" == "dir" && -d "$path" ]]; then
     return 0
   fi
-
+  
+  # check if the function is available (in case it's sourced)
+  if typeset -f "$tool_name" >/dev/null 2>&1; then
+    return 0
+  fi
+  
   return 1
 }
 
@@ -71,8 +72,11 @@ check_tool_installed() {
   local executable="$2"
 
   case "$formula" in
-  zinit)
-    check_zinit
+  # zinit)
+  #   check_sourced_tool "zinit" "dir" "${HOMEBREW_PREFIX:-/opt/homebrew}/opt/zinit"
+  #   ;;
+  antidote)
+    check_sourced_tool "antidote" "file" "${HOMEBREW_PREFIX:-/opt/homebrew}/opt/antidote/share/antidote/antidote.zsh"
     ;;
   *)
     command -v "$executable" >/dev/null 2>&1
