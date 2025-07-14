@@ -104,14 +104,17 @@ bindkey '^[[A' history-substring-search-up # or '\eOA'
 bindkey '^[[B' history-substring-search-down # or '\eOB'
 HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE=1
 
-zsh-defer _evalcache fzf --zsh
-zsh-defer _evalcache mise activate zsh
-zsh-defer _evalcache zoxide init zsh
-zsh-defer _evalcache atuin init zsh --disable-up-arrow
+# ────────────────────────────── prompt ──────────────────────────────
 
-zsh-defer load_script "$XDG_CONFIG_HOME/zsh/bindings-Integralist.zsh"
-zsh-defer load_script "$XDG_CONFIG_HOME/zsh/functions.zsh"
-zsh-defer load_script "$XDG_CONFIG_HOME/shell/alias.sh"
+# # _evalcache starship init zsh
+# export STARSHIP_LOG=trace
+# eval "$(starship init zsh)"
+
+# ────────────────────────────── other scripts ──────────────────────────────
+
+load_script "$XDG_CONFIG_HOME/zsh/bindings-Integralist.zsh"
+load_script "$XDG_CONFIG_HOME/zsh/functions.zsh"
+load_script "$XDG_CONFIG_HOME/shell/alias.sh"
 
 # ────────────────────────────── completion styles ──────────────────────────────
 
