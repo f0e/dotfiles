@@ -97,7 +97,7 @@ export FORGIT_NO_ALIASES=1 # https://github.com/wfxr/forgit#shell-aliases i dont
 # load plugins
 source ${zsh_plugins}.zsh
 
-PATH="$PATH:$FORGIT_INSTALL_DIR/bin"
+PATH="$PATH:$FORGIT_INSTALL_DIR/bin" # https://github.com/wfxr/forgit#git-integration
 
 _evalcache starship init zsh
 
