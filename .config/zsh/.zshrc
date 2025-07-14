@@ -149,6 +149,13 @@ zstyle ':fzf-tab:*' use-fzf-default-opts yes
 # switch group using `<` and `>`
 zstyle ':fzf-tab:*' switch-group '<' '>'
 
+# ────────────────────────────── activations ──────────────────────────────
+
+_evalcache fzf --zsh
+_evalcache mise activate zsh
+_evalcache zoxide init zsh
+_evalcache atuin init zsh --disable-up-arrow
+
 # ────────────────────────────── header ──────────────────────────────
 
 COLOUR_BG_DARK="#121211"
