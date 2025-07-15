@@ -1,4 +1,4 @@
-# shellcheck disable=SC1036,SC1072,SC1073,SC1009
+#!/usr/bin/env zsh
 
 # if not running interactively, don't do anything
 [[ $- != *i* ]] && return
@@ -33,8 +33,8 @@ load_script "$XDG_CONFIG_HOME/zsh/scripts/tools.zsh"
 if [[ -n $CURSOR_TRACE_ID ]]; then
   PROMPT_EOL_MARK=""
   load_script "$XDG_CONFIG_HOME/zsh/integrations/iterm2_shell_integration.zsh"
-  precmd() { print -Pn "\e]133;D;%?\a" }
-  preexec() { print -Pn "\e]133;C;\a" }
+  precmd() { print -Pn "\e]133;D;%?\a"; }
+  preexec() { print -Pn "\e]133;C;\a"; }
 fi
 
 export PATH="$MODIFIED_PATH:$PATH"
