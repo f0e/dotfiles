@@ -82,7 +82,7 @@ setopt share_history # history shared across sessions
 # ────────────────────────────── plugins (antidote) ──────────────────────────────
 
 # Lazy-load antidote and generate the static load file only when needed
-zsh_plugins=${ZDOTDIR:-$HOME}/.zsh_plugins
+zsh_plugins=$ZDOTDIR/.zsh_plugins
 if [[ ! ${zsh_plugins}.zsh -nt ${zsh_plugins}.txt ]]; then
   (
     source "${HOMEBREW_PREFIX:-/opt/homebrew}/opt/antidote/share/antidote/antidote.zsh"
