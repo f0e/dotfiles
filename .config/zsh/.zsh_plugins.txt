@@ -1,21 +1,23 @@
+# zsh
 romkatv/zsh-bench kind:path
-
+romkatv/zsh-defer
+romkatv/powerlevel10k
 mattmc3/ez-compinit
 zsh-users/zsh-completions kind:fpath path:src
 Aloxaf/fzf-tab
 
+# oh my zsh
 # getantidote/use-omz
 # ohmyzsh/ohmyzsh path:plugins/magic-enter
 ohmyzsh/ohmyzsh path:plugins/extract
 
+# fish-like features
 zdharma-continuum/fast-syntax-highlighting
+# zsh-users/zsh-syntax-highlighting
 zsh-users/zsh-autosuggestions
 zsh-users/zsh-history-substring-search
 
+# misc
 blimmer/zsh-aws-vault
 mroth/evalcache
 wfxr/forgit
-
-romkatv/zsh-defer
-
-romkatv/powerlevel10k
