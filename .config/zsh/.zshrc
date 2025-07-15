@@ -133,14 +133,14 @@ zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 # fzf-tab preview configuration
 # preview directory's content with eza when completing cd
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
-# show file contents for other commands  
+# show file contents for other commands
 zstyle ':fzf-tab:complete:(cat|less|more|vim|nvim|nano):*' fzf-preview 'bat --color=always --style=numbers --line-range=:500 $realpath 2>/dev/null || cat $realpath'
 # general file preview for ls command and others
 zstyle ':fzf-tab:complete:ls:*' fzf-preview '[[ -f $realpath ]] && bat --color=always --style=numbers --line-range=:500 $realpath 2>/dev/null || [[ -d $realpath ]] && eza -1 --color=always $realpath'
 # enable preview for all commands by default
 zstyle ':fzf-tab:complete:*:*' fzf-preview 'if [[ -f $realpath ]]; then bat --color=always --style=numbers --line-range=:500 $realpath 2>/dev/null || cat $realpath; elif [[ -d $realpath ]]; then eza -1 --color=always $realpath; fi'
-# custom fzf flags to ensure preview window is shown
-zstyle ':fzf-tab:*' fzf-flags --preview-window=right:50%:wrap
+# custom fzf flags to start with preview hidden and toggle with space
+zstyle ':fzf-tab:*' fzf-flags --preview-window=right:50%:wrap:hidden --bind 'space:toggle-preview'
 # To make fzf-tab follow FZF_DEFAULT_OPTS.
 # NOTE: This may lead to unexpected behavior since some flags break this plugin. See Aloxaf/fzf-tab#455.
 zstyle ':fzf-tab:*' use-fzf-default-opts yes
