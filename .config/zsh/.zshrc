@@ -154,6 +154,8 @@ _evalcache mise activate zsh
 _evalcache zoxide init zsh
 _evalcache atuin init zsh --disable-up-arrow
 
+[[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path zsh)"
+
 # ────────────────────────────── header ──────────────────────────────
 
 COLOUR_BG_DARK="#121211"
