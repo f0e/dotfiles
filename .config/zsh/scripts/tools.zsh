@@ -14,7 +14,7 @@ if [[ -f "$last_run_file" && "$last_run_file"(mh-1) && ! "$tools_script" -nt "$l
   return
 fi
 
-echo checking tools
+echo "\033[90m[tools.zsh]\033[0m running tool check"
 touch "$last_run_file"
 
 typeset -a tools=(
@@ -140,3 +140,5 @@ if ((${#missing_fonts[@]} > 0)); then
 elif ((VERBOSE)); then
   echo "All fonts are already installed."
 fi
+
+echo ""
