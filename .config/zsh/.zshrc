@@ -66,7 +66,10 @@ unsetopt nomatch
 bindkey '\e[H' beginning-of-line # fn + left to start of line
 bindkey '\e[F' end-of-line # fn + right to end of line
 
-WORDCHARS="" # use native word separation behaviour
+# WORDCHARS="" # use native word separation behaviour
+# use bash-like word skipping
+autoload -U select-word-style
+select-word-style bash
 
 # ────────────────────────────── history opts ──────────────────────────────
 
