@@ -1,9 +1,9 @@
-# follow XDG base dir specification
+# xdg base directory specification
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_CACHE_HOME="$HOME/.cache"
 
-# bootstrap .zshrc to ~/.config/zsh/.zshrc, any other zsh config files can also reside here
+# tell zsh where to find its configuration files
 export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
 
 # use cursor as default editor
