@@ -27,12 +27,12 @@ function load_script {
 
 # anything that modifies path or is required by stuff in zshrc, call it here.
 # otherwise, defer (see below)
-load_script "$XDG_CONFIG_HOME/zsh/tools.zsh"
+load_script "$XDG_CONFIG_HOME/zsh/scripts/tools.zsh"
 
 # cursor fix (https://forum.cursor.com/t/cursor-agent-terminal-doesn-t-work-well-with-powerlevel10k-oh-my-zsh/96808/12)
 if [[ -n $CURSOR_TRACE_ID ]]; then
   PROMPT_EOL_MARK=""
-  load_script "$XDG_CONFIG_HOME/zsh/iterm2_shell_integration.zsh"
+  load_script "$XDG_CONFIG_HOME/zsh/integrations/iterm2_shell_integration.zsh"
   precmd() { print -Pn "\e]133;D;%?\a" }
   preexec() { print -Pn "\e]133;C;\a" }
 fi
@@ -110,8 +110,8 @@ HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE=1
 
 # ────────────────────────────── other scripts ──────────────────────────────
 
-load_script "$XDG_CONFIG_HOME/zsh/bindings-Integralist.zsh"
-load_script "$XDG_CONFIG_HOME/zsh/functions.zsh"
+load_script "$XDG_CONFIG_HOME/zsh/scripts/bindings-Integralist.zsh"
+load_script "$XDG_CONFIG_HOME/zsh/scripts/functions.zsh"
 load_script "$XDG_CONFIG_HOME/shell/alias.sh"
 
 # ────────────────────────────── completion styles ──────────────────────────────
