@@ -25,7 +25,6 @@
   local cyan='6'
   local white='7'
   
-  # Custom colors to match your old prompt
   local colour_bg_dark='#121211'
   local colour_fg_light='#d5c4a1'
   local colour_bg_light='#21201e'
@@ -44,7 +43,6 @@
 
   # Right prompt segments.
   typeset -g POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(
-    # Remove all right prompt elements to match your old prompt style
   )
 
   # Basic style options that define the overall prompt look.
@@ -129,7 +127,7 @@
   typeset -g POWERLEVEL9K_VCS_OUTGOING_CHANGES_ICON=':↑'
   # Show the number of commits next to the ahead/behind arrows.
   typeset -g POWERLEVEL9K_VCS_{COMMITS_AHEAD,COMMITS_BEHIND}_MAX_NUM=-1
-  # Format VCS content to match your old prompt style.
+  # Remove space between '⇣' and '⇡' and all trailing spaces.
   typeset -g POWERLEVEL9K_VCS_CONTENT_EXPANSION='${${${P9K_CONTENT/⇣* :⇡/⇣⇡}// }//:/ }'
 
   # Grey current time.
