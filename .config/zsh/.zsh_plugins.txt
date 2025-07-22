@@ -22,3 +22,4 @@ blimmer/zsh-aws-vault
 mroth/evalcache
 wfxr/forgit
 https://gitlab.com/jonas-l/p10k-aws-vault-segment
+kilianpaquier/zsh-plugins path:mise-completion
