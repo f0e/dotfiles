@@ -21,3 +21,4 @@ zsh-users/zsh-history-substring-search
 blimmer/zsh-aws-vault
 mroth/evalcache
 wfxr/forgit
+https://gitlab.com/jonas-l/p10k-aws-vault-segment

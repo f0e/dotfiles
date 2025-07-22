@@ -36,8 +36,10 @@
     context                   # user@host
     dir                       # current directory
     vcs                       # git status
+    aws_vault                 # aws vault
     # command_execution_time    # previous command duration
-    virtualenv                # python virtual environment
+    # virtualenv                # python virtual environment
+    newline
     prompt_char               # prompt symbol
   )
 
@@ -129,6 +131,21 @@
   typeset -g POWERLEVEL9K_VCS_{COMMITS_AHEAD,COMMITS_BEHIND}_MAX_NUM=-1
   # Remove space between '⇣' and '⇡' and all trailing spaces.
   typeset -g POWERLEVEL9K_VCS_CONTENT_EXPANSION='${${${P9K_CONTENT/⇣* :⇡/⇣⇡}// }//:/ }'
+
+  # AWS Vault with distinct styling from VCS.
+  # WORKING: Muted orange to match AWS branding
+  typeset -g POWERLEVEL9K_AWS_VAULT_WORKING_FOREGROUND='172'
+  typeset -g POWERLEVEL9K_AWS_VAULT_WORKING_BACKGROUND=$colour_bg_dark
+  # # RUNNING_OUT: Bright yellow warning for attention
+  # typeset -g POWERLEVEL9K_AWS_VAULT_RUNNING_OUT_FOREGROUND='226'
+  # typeset -g POWERLEVEL9K_AWS_VAULT_RUNNING_OUT_BACKGROUND=$colour_bg_dark
+  # EXPIRED: Red error for urgency
+  typeset -g POWERLEVEL9K_AWS_VAULT_EXPIRED_FOREGROUND=$red
+  typeset -g POWERLEVEL9K_AWS_VAULT_EXPIRED_BACKGROUND=$colour_bg_dark
+  # Trim leading spaces from AWS Vault content
+  typeset -g POWERLEVEL9K_AWS_VAULT_WORKING_CONTENT_EXPANSION='${P9K_CONTENT## }'
+  typeset -g POWERLEVEL9K_AWS_VAULT_RUNNING_OUT_CONTENT_EXPANSION='${P9K_CONTENT## }'
+  typeset -g POWERLEVEL9K_AWS_VAULT_EXPIRED_CONTENT_EXPANSION='${P9K_CONTENT## }'
 
   # Grey current time.
   typeset -g POWERLEVEL9K_TIME_FOREGROUND=$grey
