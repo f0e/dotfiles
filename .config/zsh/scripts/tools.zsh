@@ -6,6 +6,15 @@ export PATH="$MODIFIED_PATH"
 
 VERBOSE=0
 
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  FONT_DIRS=("/System/Library/Fonts" "/Library/Fonts" "$HOME/Library/Fonts")
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  FONT_DIRS=("/usr/share/fonts" "$HOME/.fonts" "$HOME/.local/share/fonts")
+else
+  echo "Unsupported OS: $OSTYPE"
+  exit 1
+fi
+
 # only run every hour, or if this script has been modified
 last_run_file="${XDG_CACHE_HOME:-$HOME/.cache}/tool_check_last_run"
 tools_script="${(%):-%x}"
@@ -116,7 +125,15 @@ for font_spec in "${fonts[@]}"; do
     pattern="*${font_spec#font-}*"
   fi
 
-  if ! find /System/Library/Fonts /Library/Fonts ~/Library/Fonts -name "$pattern" 2>/dev/null | head -1 | read; then
+  found=0
+  for dir in "${FONT_DIRS[@]}"; do
+    if find "$dir" -iname "$pattern" 2>/dev/null | grep -q .; then
+      found=1
+      break
+    fi
+  done
+
+  if (( !found )); then
     echo "$formula not found."
     missing_fonts+=("$formula")
   elif ((VERBOSE)); then
