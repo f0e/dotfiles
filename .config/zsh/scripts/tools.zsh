@@ -19,12 +19,16 @@ fi
 last_run_file="${XDG_CACHE_HOME:-$HOME/.cache}/tool_check_last_run"
 tools_script="${(%):-%x}"
 
-if [[ -f "$last_run_file" && "$last_run_file"(mh-1) && ! "$tools_script" -nt "$last_run_file" ]]; then
+if [[ -f "$last_run_file" ]] && [[ "$last_run_file"(mh-1) ]] && [[ ! "$tools_script" -nt "$last_run_file" ]]; then
   return
 fi
 
 echo "\033[90m[tools.zsh]\033[0m running tool check"
-touch "$last_run_file"
+
+if ! command -v brew >/dev/null 2>&1; then
+  echo "\033[91m[tools.zsh]\033[0m brew not found. Install Homebrew first: https://brew.sh"
+  return 1
+fi
 
 typeset -a tools=(
   # shell command replacements
@@ -157,5 +161,7 @@ if ((${#missing_fonts[@]} > 0)); then
 elif ((VERBOSE)); then
   echo "All fonts are already installed."
 fi
+
+touch "$last_run_file"
 
 echo ""

@@ -87,10 +87,14 @@ setopt share_history # history shared across sessions
 # Lazy-load antidote and generate the static load file only when needed
 zsh_plugins=$ZDOTDIR/.zsh_plugins
 if [[ ! ${zsh_plugins}.zsh -nt ${zsh_plugins}.txt ]]; then
-  (
-    source "${HOMEBREW_PREFIX:-/opt/homebrew}/opt/antidote/share/antidote/antidote.zsh"
-    antidote bundle <${zsh_plugins}.txt >${zsh_plugins}.zsh
-  )
+  if [[ ! -f "${HOMEBREW_PREFIX:-/opt/homebrew}/opt/antidote/share/antidote/antidote.zsh" ]]; then
+    echo "\033[91m[zshrc]\033[0m antidote not found"
+  else
+    (
+      source "${HOMEBREW_PREFIX:-/opt/homebrew}/opt/antidote/share/antidote/antidote.zsh"
+      antidote bundle <${zsh_plugins}.txt >${zsh_plugins}.tmp && mv ${zsh_plugins}.tmp ${zsh_plugins}.zsh
+    )
+  fi
 fi
 
 export FORGIT_NO_ALIASES=1 # https://github.com/wfxr/forgit#shell-aliases i dont like them
