@@ -4,4 +4,6 @@
 
 managed with [yadm](https://yadm.io/)
 
+see also [dotfiles-windows](https://github.com/f0e/dotfiles-windows)
+
 some stuff from https://github.com/BreadOnPenguins/dots
