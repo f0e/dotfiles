@@ -23,3 +23,6 @@ mroth/evalcache
 wfxr/forgit
 https://gitlab.com/jonas-l/p10k-aws-vault-segment
 kilianpaquier/zsh-plugins path:mise-completion
+
+# local plugins
+$XDG_CONFIG_HOME/zsh/my-plugins/zsh-gitsync

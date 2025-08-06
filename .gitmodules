@@ -1,3 +1,6 @@
 [submodule ".config/mpv"]
 	path = .config/mpv
 	url = git@github.com:f0e/mpv-config.git
+[submodule ".config/zsh/my-plugins/zsh-gitsync"]
+	path = .config/zsh/my-plugins/zsh-gitsync
+	url = git@github.com:f0e/zsh-gitsync.git
