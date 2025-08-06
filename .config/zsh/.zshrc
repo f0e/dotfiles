@@ -113,6 +113,7 @@ HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE=1
 
 load_script "$XDG_CONFIG_HOME/zsh/scripts/bindings-Integralist.zsh"
 load_script "$XDG_CONFIG_HOME/zsh/scripts/functions.zsh"
+load_script "$XDG_CONFIG_HOME/zsh/scripts/gitsend.zsh"
 load_script "$XDG_CONFIG_HOME/shell/alias.sh"
 
 # ────────────────────────────── completion styles ──────────────────────────────
