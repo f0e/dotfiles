@@ -1,4 +1,4 @@
-# env (PATH, EDITOR, LS_COLORS, brew, etc) is inherited from zsh since it launches fish
+# env (PATH, EDITOR, LS_COLORS, brew, etc) is set up in conf.d/00-env.fish
 
 # install fisher plugins outside of here
 set -g fisher_path ~/.local/share/fisher
