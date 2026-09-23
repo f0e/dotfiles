@@ -35,4 +35,5 @@ done
 
 . "${XDG_CONFIG_HOME:-$HOME/.config}/shell/lib/colours.sh"
 
-printf '%s%s%s %sup %s%s\n\n' "$blue" "$shell_path" "$reset" "$grey" "$uptime" "$reset"
+# two padded segments, the uptime one fainter
+printf '%s%s %s %s%s up %s %s\n\n' "$header_bg" "$blue" "$shell_path" "$header_bg_dim" "$grey" "$uptime" "$reset"
