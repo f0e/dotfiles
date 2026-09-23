@@ -27,7 +27,12 @@ typeset -U path fpath
 # also skipped for `zsh -ic 'cmd'` (how IDEs read your env), or exec would drop the command
 if [[ -z $NO_FISH && -z $ZSH_EXECUTION_STRING ]] && (( $+commands[fish] )) \
   && [[ ${$(ps -o comm= -p $PPID):t} != (-|)fish ]]; then
-  if [[ -o login ]]; then exec fish --login; else exec fish; fi
+  if [[ -o login ]]; then
+    # login fish puts system dirs first in PATH, so pass ours for fish/conf.d/00-path.fish to restore
+    ZSH_PATH=$PATH exec fish --login
+  else
+    exec fish
+  fi
 fi
 
 # ────────────────────────────── opts ──────────────────────────────
