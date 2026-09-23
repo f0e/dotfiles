@@ -1,94 +1,79 @@
 #!/usr/bin/env zsh
 
-# if not running interactively, don't do anything
-[[ $- != *i* ]] && return
+# read by interactive shells only, after .zshenv/.zprofile (see $ZDOTDIR/.zshenv for what goes where).
+# env vars and PATH belong in those files, not here - this is for options, plugins, prompt, keybinds.
 
-PROFILE=0
+ZSH_PROFILE=0
 
-((PROFILE)) && zmodload zsh/zprof
+((ZSH_PROFILE)) && zmodload zsh/zprof
 
 # ────────────────────────────── scripts ──────────────────────────────
 
-# IMPORTANT: $PATH in sourced scripts is the path to the script itself.
-# So we assign the parent .zshrc PATH to MODIFIED_PATH and use that in sourced scripts.
-# We do this by re-assigning PATH in the sourced script to MODIFIED_PATH.
-# Then at the end of the sourced script we re-export the updated MODIFIED_PATH.
-# Later on you'll see us prefix this .zshrc PATH with MODIFIED_PATH.
-export MODIFIED_PATH="$PATH"
-
 function load_script {
-  local path=$1
-  if test -f $path; then
-    source $path
+  local file=$1
+  if [[ -f $file ]]; then
+    source $file
   else
-    print -u2 -- "ERROR: script '$path' not found"
+    print -u2 -P "%F{red}[zshrc]%f script not found: $file"
   fi
 }
 
-# anything that modifies path or is required by stuff in zshrc, call it here.
-# otherwise, defer (see below)
-load_script "$XDG_CONFIG_HOME/zsh/scripts/tools.zsh"
+# deduplicate paths
+typeset -U path fpath
 
-# cursor fix (https://forum.cursor.com/t/cursor-agent-terminal-doesn-t-work-well-with-powerlevel10k-oh-my-zsh/96808/12)
-if [[ -n $CURSOR_TRACE_ID ]]; then
-  PROMPT_EOL_MARK=""
-  load_script "$XDG_CONFIG_HOME/zsh/integrations/iterm2_shell_integration.zsh"
-  precmd() { print -Pn "\e]133;D;%?\a"; }
-  preexec() { print -Pn "\e]133;C;\a"; }
-fi
+# ────────────────────────────── fish handoff ──────────────────────────────
 
-export PATH="$MODIFIED_PATH:$PATH"
-typeset -U path # dedupe
-
-# ────────────────────────────── p10k instant prompt ──────────────────────────────
-
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.config/zsh/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+# handoff to fish shell unless NO_FISH=1, or the parent is already fish (so `zsh` inside fish works)
+# also skipped for `zsh -ic 'cmd'` (how IDEs read your env), or exec would drop the command
+if [[ -z $NO_FISH && -z $ZSH_EXECUTION_STRING ]] && (( $+commands[fish] )) \
+  && [[ ${$(ps -o comm= -p $PPID):t} != (-|)fish ]]; then
+  if [[ -o login ]]; then exec fish --login; else exec fish; fi
 fi
 
 # ────────────────────────────── opts ──────────────────────────────
 
-setopt auto_menu menu_complete # show menu on first tab hit after partial completion
-setopt autocd # type a dir to cd (nice zoxide fallback)
-setopt auto_param_slash # when a dir is completed, add a / instead of a trailing space
-setopt no_case_glob no_case_match # make cmp case insensitive
+setopt autocd # type a dir to cd
+setopt no_case_glob # case insensitive globbing (completion is handled by the matcher-list zstyle below)
 setopt globdots # include dotfiles
 setopt extended_glob # match ~ # ^
 setopt interactive_comments # allow comments in shell
-unsetopt prompt_sp # don't autoclean blanklines
 
+# don't error on unmatched globs, so e.g. `curl url?a=1` works unquoted
 # https://stackoverflow.com/a/42679697
 unsetopt nomatch
+
+# ────────────────────────────── keybindings ──────────────────────────────
+
+# emacs mode explicitly - zsh silently switches to vi mode if $EDITOR contains "vi"
+bindkey -e
 
 bindkey '\e[H' beginning-of-line # fn + left to start of line
 bindkey '\e[F' end-of-line # fn + right to end of line
 
-# WORDCHARS="" # use native word separation behaviour
-# use bash-like word skipping
+# bash word selection style
 autoload -U select-word-style
 select-word-style bash
 
 # ────────────────────────────── history opts ──────────────────────────────
 
+HISTFILE="$XDG_STATE_HOME/zsh/history"
+[[ -d ${HISTFILE:h} ]] || mkdir -p ${HISTFILE:h}
 HISTSIZE=1000000
 SAVEHIST=1000000
-HISTFILE="$XDG_CACHE_HOME/zsh_history" # move histfile to cache
-HISTCONTROL=ignoreboth # consecutive duplicates & commands starting with space are not saved
 
-setopt append_history # on exit, history appends rather than overwrites
-setopt inc_append_history # history is appended as soon as cmds executed
-setopt share_history # history shared across sessions
+setopt share_history # history shared across sessions (also appends as soon as cmds are executed)
+setopt extended_history # save a timestamp and duration with each command
+setopt hist_ignore_dups # don't save a command if it's the same as the previous one
+setopt hist_ignore_space # don't save commands starting with a space
+setopt hist_reduce_blanks # strip extra whitespace from saved commands
 
 # ────────────────────────────── plugins (antidote) ──────────────────────────────
 
-# Lazy-load antidote and generate the static load file only when needed
+# regenerate the static plugin file only when .zsh_plugins.txt changes (faster than loading antidote every time)
 zsh_plugins=$ZDOTDIR/.zsh_plugins
 if [[ ! ${zsh_plugins}.zsh -nt ${zsh_plugins}.txt ]]; then
   if [[ ! -f "${HOMEBREW_PREFIX:-/opt/homebrew}/opt/antidote/share/antidote/antidote.zsh" ]]; then
-    echo "\033[91m[zshrc]\033[0m antidote not found"
+    print -u2 -P "%F{red}[zshrc]%f antidote not found"
   else
     (
       source "${HOMEBREW_PREFIX:-/opt/homebrew}/opt/antidote/share/antidote/antidote.zsh"
@@ -97,120 +82,61 @@ if [[ ! ${zsh_plugins}.zsh -nt ${zsh_plugins}.txt ]]; then
   fi
 fi
 
-export FORGIT_NO_ALIASES=1 # https://github.com/wfxr/forgit#shell-aliases i dont like them
-
 # load plugins
 source ${zsh_plugins}.zsh
 
-PATH="$PATH:$FORGIT_INSTALL_DIR/bin" # https://github.com/wfxr/forgit#git-integration
+# https://github.com/wfxr/forgit#git-integration
+path+=("$FORGIT_INSTALL_DIR/bin")
 
-# zsh-history-substring-search configuration
+# up/down arrows search history for commands containing what's typed so far
 bindkey '^[[A' history-substring-search-up # or '\eOA'
 bindkey '^[[B' history-substring-search-down # or '\eOB'
-HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE=1
+HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE=1 # skip duplicate matches
 
 # ────────────────────────────── other scripts ──────────────────────────────
 
 load_script "$XDG_CONFIG_HOME/zsh/scripts/bindings-Integralist.zsh"
-load_script "$XDG_CONFIG_HOME/zsh/scripts/functions.zsh"
 
 load_script "$XDG_CONFIG_HOME/shell/alias.sh"
 
 # ────────────────────────────── completion styles ──────────────────────────────
 
-# set up LS_COLORS
-export LS_COLORS="$(vivid generate catppuccin-mocha)"
-
+# case insensitive completion (e.g. `cd desk<tab>` -> Desktop)
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+# cache slow completions, in XDG cache rather than $ZDOTDIR
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "$XDG_CACHE_HOME/zsh/zcompcache"
 # disable sort when completing `git checkout`
 zstyle ':completion:*:git-checkout:*' sort false
 # set descriptions format to enable group support
 # NOTE: don't use escape sequences (like '%F{red}%d%f') here, fzf-tab will ignore them
 zstyle ':completion:*:descriptions' format '[%d]'
-# set list-colors to enable filename colorizing
+# colour completion candidates using LS_COLORS (set in ~/.config/shell/profile.sh)
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
-# # force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
-# zstyle ':completion:*' menu no
-# fzf-tab preview configuration
-# preview directory's content with eza when completing cd
-zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
-# show file contents for other commands
-zstyle ':fzf-tab:complete:(cat|less|more|vim|nvim|nano):*' fzf-preview 'bat --color=always --style=numbers --line-range=:500 $realpath 2>/dev/null || cat $realpath'
-# general file preview for ls command and others
-zstyle ':fzf-tab:complete:ls:*' fzf-preview '[[ -f $realpath ]] && bat --color=always --style=numbers --line-range=:500 $realpath 2>/dev/null || [[ -d $realpath ]] && eza -1 --color=always $realpath'
-# enable preview for all commands by default
+# force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
+zstyle ':completion:*' menu no
+# fzf-tab preview: file contents with bat, directory contents with eza
 zstyle ':fzf-tab:complete:*:*' fzf-preview 'if [[ -f $realpath ]]; then bat --color=always --style=numbers --line-range=:500 $realpath 2>/dev/null || cat $realpath; elif [[ -d $realpath ]]; then eza -1 --color=always $realpath; fi'
 # custom fzf flags to start with preview hidden and toggle with space
 zstyle ':fzf-tab:*' fzf-flags --preview-window=right:50%:wrap:hidden --bind 'space:toggle-preview'
-# To make fzf-tab follow FZF_DEFAULT_OPTS.
-# NOTE: This may lead to unexpected behavior since some flags break this plugin. See Aloxaf/fzf-tab#455.
-zstyle ':fzf-tab:*' use-fzf-default-opts yes
 # switch group using `<` and `>`
 zstyle ':fzf-tab:*' switch-group '<' '>'
 
 # ────────────────────────────── activations ──────────────────────────────
 
-_evalcache fzf --zsh
-_evalcache mise activate zsh
-_evalcache zoxide init zsh
-_evalcache atuin init zsh --disable-up-arrow
+(( $+commands[fzf] )) && eval "$(fzf --zsh)"
+(( $+commands[mise] )) && eval "$(mise activate zsh)" 
+(( $+commands[zoxide] )) && eval "$(zoxide init zsh)"
+(( $+commands[atuin] )) && eval "$(atuin init zsh --disable-up-arrow)"
 
-[[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path zsh)"
+# ────────────────────────────── startup ──────────────────────────────
 
-# ────────────────────────────── header ──────────────────────────────
+sh "$XDG_CONFIG_HOME/shell/scripts/startup.sh" "$SHELL"
 
-COLOUR_BG_DARK="#121211"
-COLOUR_FG_LIGHT="#d5c4a1"
-COLOUR_BG_LIGHT="#21201e"
-COLOUR_FG_DARK="#ab9d82"
-COLOUR_FG_DIM="#8c816b"
+# ────────────────────────────── starship prompt ──────────────────────────────
 
-show_uptime_header() {
-  local shell_path uptime_str uptime_part days="" hours="" minutes="" readable_uptime=""
-  shell_path=${SHELL:-$0}
-  uptime_str=$(uptime)
-
-  # Extract part after "up " and before "user"
-  uptime_part=${uptime_str#*up }
-  uptime_part=${uptime_part%% user*}
-
-  # Check for "X day(s)"
-  if [[ $uptime_part =~ ([0-9]+)\ day ]]; then
-    days=${match[1]##0}
-    [[ -z $days ]] && days=0
-    days="$days day"
-    [[ $days != "1 day" ]] && days+="s"
-  fi
-
-  # Check for HH:MM format
-  if [[ $uptime_part =~ ([0-9]+):([0-9]+) ]]; then
-    hours=${match[1]##0}
-    minutes=${match[2]##0}
-    [[ -z $hours ]] && hours=0
-    [[ -z $minutes ]] && minutes=0
-
-    [[ $hours -gt 0 ]] && hours="$hours hour$([[ $hours -eq 1 ]] || echo s)"
-    [[ $minutes -gt 0 ]] && minutes="$minutes minute$([[ $minutes -eq 1 ]] || echo s)"
-  elif [[ $uptime_part =~ ([0-9]+)\ min ]]; then
-    minutes=${match[1]##0}
-    [[ -z $minutes ]] && minutes=0
-    minutes="$minutes minute$([[ $minutes -eq 1 ]] || echo s)"
-  fi
-
-  # Build readable uptime string
-  [[ -n $days ]] && readable_uptime+="$days"
-  [[ -n $hours ]] && readable_uptime+="${readable_uptime:+, }$hours"
-  [[ -n $minutes ]] && readable_uptime+="${readable_uptime:+, }$minutes"
-
-  print -P "%K{$COLOUR_BG_DARK}%F{$COLOUR_FG_DIM} ${shell_path} %K{$COLOUR_BG_LIGHT}%F{$COLOUR_FG_DARK} up ${readable_uptime} %k%f"
-}
-
-# show_uptime_header
-
-# ────────────────────────────── p10k prompt ──────────────────────────────
-
-# To customize prompt, run `p10k configure` or edit ~/.config/zsh/.p10k.zsh.
-[[ ! -f ~/.config/zsh/.p10k.zsh ]] || source ~/.config/zsh/.p10k.zsh
+eval "$(starship init zsh)"
 
 # ────────────────────────────────────────────────────────
 
-((PROFILE)) && zprof
+((ZSH_PROFILE)) && zprof

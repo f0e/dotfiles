@@ -1,9 +1,5 @@
 #!/usr/bin/zsh
 
-# IMPORTANT: We MUST use MODIFIED_PATH (see notes in ~/.zshrc).
-# Otherwise tools like `curl`, `sh` etc can't be found otherwise.
-export PATH="$MODIFIED_PATH"
-
 # from https://github.com/Integralist/dotfiles/blob/main/.config/zsh/bindings.zsh
 
 # Allow yanking command input to system clipboard.

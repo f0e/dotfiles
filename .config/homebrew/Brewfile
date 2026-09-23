@@ -1,0 +1,68 @@
+# brew bundle -g cleanup        list things installed but not in here (--force to uninstall them)
+# brew bundle dump --file=-     print everything currently installed, to copy lines from
+
+tap "jurplel/tap"
+
+# ────────────────────────────── shell ──────────────────────────────
+
+brew "fish"
+brew "antidote"      # zsh plugin manager
+brew "starship"      # prompt
+brew "yadm"          # dotfiles
+brew "vivid"         # LS_COLORS generator
+
+# ────────────────────────────── command replacements ──────────────────────────────
+
+brew "zoxide"        # cd
+brew "bat"           # cat
+brew "eza"           # ls
+brew "fd"            # find
+brew "ripgrep"       # grep
+brew "sd"            # sed
+brew "git-delta"     # git pager
+brew "atuin"         # shell history
+
+# ────────────────────────────── tools ──────────────────────────────
+
+brew "neovim"        # editor (git core.editor)
+brew "mise"          # per-project tool versions
+brew "fzf"           # fuzzy finder
+brew "git-lfs"
+brew "difftastic"    # syntax-aware diff (git dft/dl/ds aliases)
+brew "jless"         # json viewer
+brew "gron"          # make json greppable (gron x.json | rg key)
+brew "curlie"        # nicer curl
+brew "hyperfine"     # benchmarker
+brew "hexyl"         # hex viewer
+brew "csvlens"       # csv viewer
+brew "pastel"        # colour manipulation
+brew "duti"          # default apps (~/.config/duti)
+
+# ────────────────────────────── fonts ──────────────────────────────
+
+cask "font-geist-mono-nerd-font"
+
+# ────────────────────────────── apps ──────────────────────────────
+
+cask "1password"
+cask "alt-tab"
+cask "battery"
+cask "brave-browser"
+cask "find-any-file"
+cask "freefilesync"
+cask "ghostty"
+cask "iina"
+cask "jurplel/tap/instant-space-switcher", trusted: true
+cask "jordanbaird-ice" # menu bar manager
+cask "keka"            # archiver
+cask "klogg"           # log viewer
+cask "orbstack"        # docker
+cask "raycast"
+cask "shottr"          # screenshots
+cask "spotify"
+cask "visual-studio-code"
+
+# ────────────────────────────── vscode extensions ──────────────────────────────
+
+vscode "anthropic.claude-code"
+vscode "tek.tek-darker-modern"

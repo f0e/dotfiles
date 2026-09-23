@@ -23,7 +23,7 @@ font-feature = -calt
 font-feature = -liga
 font-feature = -dlig
 
-# macos-titlebar-style = tabs
+macos-titlebar-style = native
 macos-icon = custom-style
 # macos-icon-frame = plastic
 macos-icon-ghost-color = ffffff

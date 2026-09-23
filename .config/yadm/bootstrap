@@ -1,0 +1,67 @@
+#!/bin/sh
+
+# sets up a fresh machine after `yadm clone` (yadm offers to run this, or run `yadm bootstrap`).
+# safe to re-run: every step skips or no-ops if it's already done.
+
+set -eu
+
+config="${XDG_CONFIG_HOME:-$HOME/.config}"
+. "$config/shell/lib/colours.sh"
+
+step() { printf '\n%s==>%s %s%s%s\n' "$blue" "$reset" "$bold" "$1" "$reset"; }
+
+# ask a y/N question, defaulting to no
+confirm() {
+  printf '%s [y/N] ' "$1"
+  read -r reply
+  case $reply in [yY] | [yY][eE][sS]) return 0 ;; *) return 1 ;; esac
+}
+
+# ────────────────────────────── submodules ──────────────────────────────
+
+step "submodules (mpv)"
+cd "$HOME"
+yadm submodule update --init --recursive
+
+# ────────────────────────────── homebrew ──────────────────────────────
+
+step "homebrew"
+if ! command -v brew >/dev/null 2>&1 && [ ! -x /opt/homebrew/bin/brew ]; then
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+eval "$(/opt/homebrew/bin/brew shellenv)" # brew isn't on PATH yet in a fresh shell
+
+brewfile="$config/homebrew/Brewfile"
+if [ -f "$brewfile" ]; then
+  brew bundle --global # reads $brewfile
+else
+  echo "no Brewfile at $brewfile, skipping (the shell startup check will list missing tools)"
+fi
+
+# ────────────────────────────── fish plugins ──────────────────────────────
+
+# fisher isn't tracked, so fetch it once and let it install everything in fish_plugins
+step "fish plugins"
+if command -v fish >/dev/null 2>&1; then
+  fish -c 'type -q fisher; or curl -fsSL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source; fisher update'
+else
+  echo "fish not installed, skipping"
+fi
+
+# ────────────────────────────── default apps ──────────────────────────────
+
+step "default apps (duti)"
+if command -v duti >/dev/null 2>&1; then
+  duti "$config/duti" || echo "duti failed (are the apps it references installed?)" # applies every settings file in the folder
+else
+  echo "duti not installed, skipping"
+fi
+
+# ────────────────────────────── macos settings ──────────────────────────────
+
+step "macos settings"
+if [ "$(uname)" = Darwin ] && confirm "apply macos-defaults.sh (changes system settings, needs sudo)?"; then
+  sh "$config/shell/scripts/macos-defaults.sh" -y
+fi
+
+step "done - open a new terminal to load everything"

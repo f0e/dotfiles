@@ -1,37 +1,60 @@
-[filter "lfs"]
-	clean = git-lfs clean -- %f
-	smudge = git-lfs smudge -- %f
-	process = git-lfs filter-process
-	required = true
-
 [core]
 	excludesfile = ~/.gitignore_global
-	editor = "nvim"
+	editor = nvim
 	pager = delta
 
 [init]
 	defaultBranch = main
 
+[column]
+	ui = auto # list branches/tags etc in columns
+
+[branch]
+	sort = -committerdate
+
+[tag]
+	sort = version:refname # v1.10 after v1.9, not v1.1
+
+[commit]
+	verbose = true
+
+[log]
+	date = iso
+
 [pull]
 	rebase = true
 
+[rebase]
+	autoSquash = true
+	autoStash = true
+	updateRefs = true
+
 [merge]
-	# conflictstyle = diff3
-	conflictstyle = zdiff3
+	conflictStyle = zdiff3
 
 [diff]
 	algorithm = histogram
 	# colorMoved = default
 	# tool = difftastic
 
-[branch]
-	sort = -committerdate
+# verify objects on fetch/push/receive (catches corrupt or malicious objects)
+[transfer]
+	fsckObjects = true
 
 [gpg]
 	format = ssh
 
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+
 [alias]
 	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
+
+	# 10 most recently committed-to branches
+	recent = ! git branch --sort=-committerdate --format=\"%(committerdate:relative)%09%(refname:short)\" | head -10
 
 	# `git log` with patches shown with difftastic.
 	dl = -c diff.external=difft log -p --ext-diff
@@ -56,3 +79,6 @@
 	navigate = true  # use n and N to move between diff sections
 	dark = true      # or light = true, or omit for auto-detection
 	line-numbers = true
+[user]
+	name = f0e
+	email = 7321764+f0e@users.noreply.github.com
