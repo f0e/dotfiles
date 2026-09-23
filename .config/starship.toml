@@ -17,6 +17,7 @@ $character"""
 # $package\
 
 add_newline = false
+command_timeout = 5000 # mise doctor sometimes takes a while
 
 [directory]
 format = "[ $path ]($style)"
