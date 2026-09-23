@@ -61,6 +61,7 @@ cask "raycast"
 cask "shottr"          # screenshots
 cask "spotify"
 cask "visual-studio-code"
+cask "tailscale-app"
 
 # ────────────────────────────── vscode extensions ──────────────────────────────
 
