@@ -30,6 +30,10 @@ if [[ -z $NO_FISH && -z $ZSH_EXECUTION_STRING ]] && (( $+commands[fish] )) \
   if [[ -o login ]]; then exec fish --login; else exec fish; fi
 fi
 
+# ────────────────────────────── startup ──────────────────────────────
+
+sh "$XDG_CONFIG_HOME/shell/scripts/startup.sh" "$SHELL"
+
 # ────────────────────────────── opts ──────────────────────────────
 
 setopt autocd # type a dir to cd
@@ -128,10 +132,6 @@ zstyle ':fzf-tab:*' switch-group '<' '>'
 (( $+commands[mise] )) && eval "$(mise activate zsh)" 
 (( $+commands[zoxide] )) && eval "$(zoxide init zsh --cmd cd)"
 (( $+commands[atuin] )) && eval "$(atuin init zsh --disable-up-arrow)"
-
-# ────────────────────────────── startup ──────────────────────────────
-
-sh "$XDG_CONFIG_HOME/shell/scripts/startup.sh" "$SHELL"
 
 # ────────────────────────────── starship prompt ──────────────────────────────
 

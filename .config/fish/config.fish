@@ -9,9 +9,8 @@ for file in $fisher_path/conf.d/*.fish
 end
 
 if status is-interactive
-    function fish_greeting
-        sh $XDG_CONFIG_HOME/shell/scripts/startup.sh (command -s fish)
-    end
+    # enable greeting (see conf.d/00-startup.fish)
+    set -g fish_greeting
 
     source $XDG_CONFIG_HOME/shell/alias.sh
 
