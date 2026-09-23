@@ -1,38 +1,35 @@
 #!/bin/sh
 
-shell_path=${1:-$SHELL}
-
-# seconds since boot
-if boot=$(sysctl -n kern.boottime 2>/dev/null); then
-  # macos: "{ sec = 1758590000, usec = 0 } Tue Sep 23 ..."
-  boot=${boot#*sec = }
-  boot=${boot%%,*}
-  secs=$(($(date +%s) - boot))
-elif [ -r /proc/uptime ]; then
-  # linux: "12345.67 54321.00"
-  read -r secs _ </proc/uptime
-  secs=${secs%%.*}
-else
-  exit 0
-fi
-
-days=$((secs / 86400))
-hours=$((secs % 86400 / 3600))
-minutes=$((secs % 3600 / 60))
-
-# "1 day" / "2 days", skipping zero units
-unit() {
+# appends "1 day" / "2 days" to $uptime, skipping zero units
+append_unit() {
   [ "$1" -eq 0 ] && return
-  [ "$1" -eq 1 ] && printf '%s %s' "$1" "$2" || printf '%s %ss' "$1" "$2"
+  [ "$1" -eq 1 ] && part="$1 $2" || part="$1 ${2}s"
+  uptime="${uptime:+$uptime, }$part"
 }
 
-# e.g. "2 days, 3 hours, 1 minute"
-uptime=""
-for part in "$(unit $days day)" "$(unit $hours hour)" "$(unit $minutes minute)"; do
-  [ -n "$part" ] && uptime="${uptime:+$uptime, }$part"
-done
-[ -z "$uptime" ] && uptime="less than a minute"
+# prints the shell path and how long the machine has been up, e.g. "up 2 days, 3 hours, 1 minute"
+uptime_header() {
+  shell_path=${1:-$SHELL}
 
-. "${XDG_CONFIG_HOME:-$HOME/.config}/shell/lib/colours.sh"
+  # seconds since boot
+  if boot=$(sysctl -n kern.boottime 2>/dev/null); then
+    # macos: "{ sec = 1758590000, usec = 0 } Tue Sep 23 ..."
+    boot=${boot#*sec = }
+    boot=${boot%%,*}
+    secs=$(($(date +%s) - boot))
+  elif [ -r /proc/uptime ]; then
+    # linux: "12345.67 54321.00"
+    read -r secs _ </proc/uptime
+    secs=${secs%%.*}
+  else
+    return
+  fi
 
-printf '%s%s %s %s%s up %s %s\n\n' "$header_bg" "$blue" "$shell_path" "$header_bg_dim" "$grey" "$uptime" "$reset"
+  uptime=""
+  append_unit $((secs / 86400)) day
+  append_unit $((secs % 86400 / 3600)) hour
+  append_unit $((secs % 3600 / 60)) minute
+  [ -z "$uptime" ] && uptime="less than a minute"
+
+  printf '%s%s %s %s%s up %s %s\n\n' "$header_bg" "$blue" "$shell_path" "$header_bg_dim" "$grey" "$uptime" "$reset"
+}
