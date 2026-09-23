@@ -1,5 +1,14 @@
 #!/bin/sh
 
+# rgb escape from a hex colour
+# fg: hex_escape 38 "#b5be8b"
+# bg: hex_escape 48 "#b5be8b"
+hex_escape() {
+  hex=${2#\#}
+  r=${hex%????} g=${hex#??} g=${g%??} b=${hex#????}
+  printf '\033[%s;2;%d;%d;%dm' "$1" "0x$r" "0x$g" "0x$b"
+}
+
 if [ -t 1 ] && [ -z "${NO_COLOR-}" ]; then
   esc=$(printf '\033')
 
