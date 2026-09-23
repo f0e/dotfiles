@@ -126,7 +126,7 @@ zstyle ':fzf-tab:*' switch-group '<' '>'
 
 (( $+commands[fzf] )) && eval "$(fzf --zsh)"
 (( $+commands[mise] )) && eval "$(mise activate zsh)" 
-(( $+commands[zoxide] )) && eval "$(zoxide init zsh)"
+(( $+commands[zoxide] )) && eval "$(zoxide init zsh --cmd cd)"
 (( $+commands[atuin] )) && eval "$(atuin init zsh --disable-up-arrow)"
 
 # ────────────────────────────── startup ──────────────────────────────
