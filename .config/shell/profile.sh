@@ -8,4 +8,4 @@ export PATH="$HOMEBREW_PREFIX/opt/llvm/bin:$PATH"   # prioritise brew llvm over 
 export PATH="$HOMEBREW_PREFIX/opt/libpq/bin:$PATH"  # postgres tools like psql
 
 # colours for ls/eza/completion by file type
-command -v vivid >/dev/null 2>&1 && export LS_COLORS="$(vivid generate catppuccin-mocha)"
+command -v vivid >/dev/null 2>&1 && export LS_COLORS="$(vivid generate gruvbox-dark)" # vivid themes | fzf --preview 'vivid preview {}'
