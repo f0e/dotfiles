@@ -15,7 +15,8 @@ if status is-interactive
     source $XDG_CONFIG_HOME/shell/alias.sh
 
     # https://github.com/wfxr/forgit#git-integration
-    set -q FORGIT_INSTALL_DIR; and fish_add_path -g --append $FORGIT_INSTALL_DIR/bin
+    # (--path to append to $PATH directly instead of $fish_user_paths, so it stays after mise's shims ($fish_user_paths is prepended before rest of path & mise complains if anything's there))
+    set -q FORGIT_INSTALL_DIR; and fish_add_path --path --append $FORGIT_INSTALL_DIR/bin
 
     # (options here mirror ~/.config/zsh/.zshrc "completion styles")
     set -g fifc_custom_fzf_opts --preview-window=right:50%:wrap:hidden --bind space:toggle-preview
