@@ -23,12 +23,6 @@ if status is-interactive
     set -g fifc_bat_opts --style=numbers --line-range=:500
     set -g fifc_eza_opts -1
 
-    # autopair.fish also binds tab and loads after fifc, so give tab back to fifc
-    function fish_user_key_bindings
-        bind --mode default $fifc_keybinding _fifc
-        bind --mode insert $fifc_keybinding _fifc
-    end
-
     # ghostty shell integration isn't auto-injected since fish is launched via zsh
     if set -q GHOSTTY_RESOURCES_DIR
         source $GHOSTTY_RESOURCES_DIR/shell-integration/fish/vendor_conf.d/ghostty-shell-integration.fish
