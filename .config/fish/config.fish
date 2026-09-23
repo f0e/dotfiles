@@ -30,7 +30,6 @@ if status is-interactive
 
     # init tools
     type -q fzf; and fzf --fish | source
-    type -q mise; and mise activate fish | source
     type -q zoxide; and zoxide init fish --cmd cd | source
     type -q atuin; and atuin init fish --disable-up-arrow | source
 
