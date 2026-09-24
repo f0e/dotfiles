@@ -4,12 +4,7 @@ $git_branch\
 $git_status\
 $git_state\
 $mise\
-$nodejs\
-$python\
-$rust\
-$golang\
-$java\
-$aws\
+${custom.aws_ok}${custom.aws_soon}${custom.aws_expired}\
 $cmd_duration\
 $character"""
 # $gcloud\
@@ -26,7 +21,7 @@ style = "bg:#121211 fg:#8c816b"
 repo_root_format = "[ $before_root_path]($before_repo_root_style)[$repo_root]($repo_root_style)[$path]($style)[$read_only]($read_only_style)[ ]($style)"
 before_repo_root_style = "bg:#121211 fg:#8c816b"
 repo_root_style = "bg:#121211 fg:#d5c4a1"
-read_only_style = "bg:#121211 fg:#52261a" # maybe needs to change
+read_only_style = "bg:#121211 fg:#52261a"                                                                                                                # maybe needs to change
 truncate_to_repo = true
 
 [character]
@@ -59,10 +54,11 @@ format = '([$state( $progress_current/$progress_total)]($style))'
 style = "fg:#8c816b"
 
 [mise]
-disabled = false # off by default in starship
-format = " [$symbol$health]($style)"
-style = "fg:#5c574d"
-symbol = "mise "
+disabled = false                     # off by default in starship
+format = "( [$health]($style))"  # only shows when unhealthy
+style = "fg:#d79921"
+healthy_symbol = ""
+unhealthy_symbol = "mise unhealthy"
 
 [nodejs]
 format = " [$symbol($version)]($style)"
@@ -100,10 +96,30 @@ detect_extensions = []
 # style = "fg:#8c816b"
 # symbol = " "
 
+# aws-vault session: just the profile, coloured by expiry (see starship/aws-state.sh)
 [aws]
-format = " [$symbol($profile)(\\($region\\))(\\[$duration\\])]($style)"
+disabled = true
+
+[custom.aws_ok]
+when = '[ "$(~/.config/starship/aws-state.sh)" = ok ]'
+command = 'echo $AWS_VAULT'
+shell = ["sh"]
+format = " [$output]($style)"
 style = "fg:#8c816b"
-symbol = "aws "
+
+[custom.aws_soon]
+when = '[ "$(~/.config/starship/aws-state.sh)" = soon ]'
+command = 'echo $AWS_VAULT'
+shell = ["sh"]
+format = " [$output]($style)"
+style = "fg:#d79921"
+
+[custom.aws_expired]
+when = '[ "$(~/.config/starship/aws-state.sh)" = expired ]'
+command = 'echo $AWS_VAULT'
+shell = ["sh"]
+format = " [$output]($style)"
+style = "fg:#cc241d"
 
 # [gcloud]
 # format = " [$symbol$account(@$domain)(\\($region\\))]($style)"
