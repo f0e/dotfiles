@@ -51,7 +51,7 @@
 	required = true
 
 [alias]
-	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
+	lg = !~/.config/shell/scripts/git-lg.sh
 
 	# 10 most recently committed-to branches
 	recent = ! git branch --sort=-committerdate --format=\"%(committerdate:relative)%09%(refname:short)\" | head -10
