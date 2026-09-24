@@ -31,3 +31,5 @@ macos-icon-screen-color = 000000
 macos-option-as-alt = true
 
 window-colorspace = display-p3
+
+shell-integration-features = ssh-terminfo,ssh-env
