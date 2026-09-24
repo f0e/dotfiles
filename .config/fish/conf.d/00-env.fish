@@ -1,5 +1,8 @@
 # filename starts with 00- so it runs before other conf.d files
 
+# activate mise in config.fish instead
+set -gx MISE_FISH_AUTO_ACTIVATE 0
+
 source ~/.config/shell/env.sh
 
 if status is-login
