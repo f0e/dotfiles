@@ -6,7 +6,7 @@ set -gx MISE_FISH_AUTO_ACTIVATE 0
 source ~/.config/shell/env.sh
 
 if status is-login
-    /opt/homebrew/bin/brew shellenv fish | source
+    test (uname) = Darwin; and /opt/homebrew/bin/brew shellenv fish | source
 
     source $XDG_CONFIG_HOME/shell/profile.sh
 

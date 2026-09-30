@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# shared scripts in ~/.config/shell/scripts
+alias macos-defaults='sh "$XDG_CONFIG_HOME/shell/scripts/macos-defaults.sh"'

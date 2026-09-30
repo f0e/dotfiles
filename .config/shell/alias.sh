@@ -10,8 +10,8 @@ alias lS='eza -1'
 alias lt='eza --tree --level=2'
 alias l.='eza -a | grep -E "^\."'
 
-# shared scripts in ~/.config/shell/scripts
-alias macos-defaults='sh "$XDG_CONFIG_HOME/shell/scripts/macos-defaults.sh"'
+# macos only
+test -f "$XDG_CONFIG_HOME/shell/alias.macos.sh" && source "$XDG_CONFIG_HOME/shell/alias.macos.sh"
 
 # work-specific aliases - `yadm config local.class work`
 test -f "$XDG_CONFIG_HOME/shell/alias.work.sh" && source "$XDG_CONFIG_HOME/shell/alias.work.sh"
