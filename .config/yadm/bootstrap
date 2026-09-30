@@ -123,6 +123,12 @@ setup_windows() {
   step "git ssh"
   export GIT_SSH='C:\Windows\System32\OpenSSH\ssh.exe' # setx only affects new terminals
   setx GIT_SSH "$GIT_SSH" >/dev/null
+
+  # ────────────────────────────── mpv ──────────────────────────────
+
+  # windows mpv reads %APPDATA%\mpv (or scoop's portable_config) instead of ~/.config/mpv
+  step "mpv"
+  setx MPV_HOME "$(cygpath -w "$config/mpv")" >/dev/null
 }
 
 case "$(uname -s)" in
