@@ -11,7 +11,18 @@ fi
 
 hash='h=$(echo {} | grep -oE "[0-9a-f]{7,}" | head -1); [ -n "$h" ]'
 
-git log --graph --color=always --pretty=format:"$format" --abbrev-commit "$@" |
+log() { git log --graph --color=always --pretty=format:"$format" --abbrev-commit "$@"; }
+
+# on windows, git exiting while fzf is open resets the console input mode and arrow keys
+# then quit fzf, so read the whole log before starting it
+case $(uname -s) in
+MINGW* | MSYS*)
+  input=$(log "$@") && log() { printf '%s\n' "$input"; }
+  export SHELL="$(cygpath -m "$(command -v sh)")" # fzf runs the preview with cmd otherwise
+  ;;
+esac
+
+log "$@" |
   fzf --ansi --no-sort --reverse --preview-window=right:60% \
     --preview "$hash && git show --color=always \$h | delta --width=\$FZF_PREVIEW_COLUMNS" \
     --bind "enter:execute($hash && git show \$h)"
