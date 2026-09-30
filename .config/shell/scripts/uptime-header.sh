@@ -49,7 +49,7 @@ uptime_header() {
   if [ -n "$HEADER_PARENT_SHELL" ]; then
     context="subshell of ${HEADER_PARENT_SHELL##*/}"
     # $PPID is the shell running this script, so its parent is whatever launched the shell (e.g. aws-vault, nvim)
-    owner=$(ps -o comm= -p "$(ps -o ppid= -p "$PPID")" 2>/dev/null)
+    owner=$(ps -o comm= -p "$(ps -o ppid= -p "$PPID" 2>/dev/null)" 2>/dev/null)
     owner=${owner##*/}
     owner=${owner#-} # login shells show as "-fish"
     [ -n "$owner" ] && [ "$owner" != "${HEADER_PARENT_SHELL##*/}" ] && context="$context, via $owner"
