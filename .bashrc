@@ -1,4 +1,5 @@
 . "$HOME/.config/shell/env.sh"
+. "$XDG_CONFIG_HOME/shell/profile.sh"
 
 command -v starship >/dev/null && eval "$(starship init bash)"
 

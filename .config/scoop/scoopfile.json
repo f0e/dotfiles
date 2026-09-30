@@ -20,6 +20,7 @@
     { "Name": "pwsh", "Source": "main" },
     { "Name": "ripgrep", "Source": "main" },
     { "Name": "starship", "Source": "main" },
+    { "Name": "vivid", "Source": "main" },
     { "Name": "wget", "Source": "main" },
     { "Name": "zoxide", "Source": "main" }
   ]

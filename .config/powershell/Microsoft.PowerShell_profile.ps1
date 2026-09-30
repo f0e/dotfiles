@@ -29,6 +29,9 @@ Remove-Item alias:ls -ErrorAction SilentlyContinue
 function ls {
     eza @args
 }
+if (Get-Command vivid -ErrorAction Ignore) {
+    $env:LS_COLORS = vivid generate gruvbox-dark
+}
 
 # atuin
 atuin init powershell --disable-up-arrow | Out-String | Invoke-Expression
