@@ -41,12 +41,12 @@ brew "duti"          # default apps (~/.config/duti)
 # ────────────────────────────── fonts ──────────────────────────────
 
 cask "font-geist-mono-nerd-font"
+cask "font-ioskeley-mono"
 
 # ────────────────────────────── apps ──────────────────────────────
 
 cask "1password"
 cask "alt-tab"
-cask "battery"
 cask "brave-browser"
 cask "find-any-file"
 cask "freefilesync"
