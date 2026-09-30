@@ -18,19 +18,21 @@ shell_colours() {
   if [ ! -s "$cache" ]; then
     command -v pastel >/dev/null || return
 
+    property=hue
     case $name in
-    fish) hue=125 ;; # green
-    zsh) hue=260 ;;  # blue
+    fish) value=125 ;;              # green
+    zsh | pwsh) value=260 ;;        # blue
+    cmd) property=chroma value=0 ;; # grey
     *)
       set -- $(printf %s "$name" | cksum) # checksum of the name -> stable hue 0-359
-      hue=$(($1 % 360))
+      value=$(($1 % 360))
       ;;
     esac
 
     mkdir -p "${cache%/*}"
 
-    # same lightness/chroma as the default palette in colours.sh, only the hue changes
-    pastel set hue "$hue" '#b5be8b' '#52544a' '#161814' '#10100d' | pastel format hex >"$cache"
+    # same lightness as the default palette in colours.sh, only the hue (or chroma for grey) changes
+    pastel set "$property" "$value" '#b5be8b' '#52544a' '#161814' '#10100d' | pastel format hex >"$cache"
   fi
 
   { read -r fg; read -r dim; read -r bg; read -r bg_dim; } <"$cache"
