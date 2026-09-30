@@ -14,6 +14,9 @@ alias l.='eza -a | grep -E "^\."'
 alias macos-defaults='sh "$XDG_CONFIG_HOME/shell/scripts/macos-defaults.sh"'
 
 # claudes
-alias claude='echo "use claude-personal or claude-work" >&2; false'
+alias claude='echo "use claude-work or claude-personal or claude-personal-2" >&2; false'
 alias claude-personal='CLAUDE_CONFIG_DIR="$HOME/.claude-personal" command claude'
+# syncs shared setup from claude-personal first (see claude-sync.sh)
+alias claude-sync='sh "$XDG_CONFIG_HOME/shell/scripts/claude-sync.sh"'
+alias claude-personal-2='claude-sync "$HOME/.claude-personal-2"; CLAUDE_CONFIG_DIR="$HOME/.claude-personal-2" command claude'
 alias claude-work='CLAUDE_CONFIG_DIR="$HOME/.claude-work" command claude'
