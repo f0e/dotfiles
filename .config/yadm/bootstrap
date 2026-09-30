@@ -17,51 +17,130 @@ confirm() {
   case $reply in [yY] | [yY][eE][sS]) return 0 ;; *) return 1 ;; esac
 }
 
-# ────────────────────────────── submodules ──────────────────────────────
+setup_macos() {
+  # ────────────────────────────── submodules ──────────────────────────────
 
-step "submodules (mpv)"
-cd "$HOME"
-yadm submodule update --init --recursive
+  step "submodules (mpv)"
+  cd "$HOME"
+  yadm submodule update --init --recursive
 
-# ────────────────────────────── homebrew ──────────────────────────────
+  # ────────────────────────────── homebrew ──────────────────────────────
 
-step "homebrew"
-if ! command -v brew >/dev/null 2>&1 && [ ! -x /opt/homebrew/bin/brew ]; then
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-fi
-eval "$(/opt/homebrew/bin/brew shellenv)" # brew isn't on PATH yet in a fresh shell
+  step "homebrew"
+  if ! command -v brew >/dev/null 2>&1 && [ ! -x /opt/homebrew/bin/brew ]; then
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  fi
+  eval "$(/opt/homebrew/bin/brew shellenv)" # brew isn't on PATH yet in a fresh shell
 
-brewfile="$config/homebrew/Brewfile"
-if [ -f "$brewfile" ]; then
-  brew bundle --global # reads $brewfile
+  brewfile="$config/homebrew/Brewfile"
+  if [ -f "$brewfile" ]; then
+    brew bundle --global # reads $brewfile
+  else
+    echo "no Brewfile at $brewfile, skipping (the shell startup check will list missing tools)"
+  fi
+
+  # ────────────────────────────── fish plugins ──────────────────────────────
+
+  # fisher isn't tracked, so fetch it once and let it install everything in fish_plugins
+  step "fish plugins"
+  if command -v fish >/dev/null 2>&1; then
+    fish -c 'type -q fisher; or curl -fsSL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source; fisher update'
+  else
+    echo "fish not installed, skipping"
+  fi
+
+  # ────────────────────────────── default apps ──────────────────────────────
+
+  step "default apps (duti)"
+  if command -v duti >/dev/null 2>&1; then
+    duti "$config/duti" || echo "duti failed (are the apps it references installed?)" # applies every settings file in the folder
+  else
+    echo "duti not installed, skipping"
+  fi
+
+  # ────────────────────────────── macos settings ──────────────────────────────
+
+  step "macos settings"
+  if confirm "apply macos-defaults.sh (changes system settings, needs sudo)?"; then
+    sh "$config/shell/scripts/macos-defaults.sh" -y
+  fi
+}
+
+set_shortcut_args() {
+  lnk="$(cygpath -w "$APPDATA/Microsoft/Windows/Start Menu/Programs/$1")"
+  [ -f "$lnk" ] || return 0
+  # stop msys converting arguments like /k into windows paths
+  MSYS2_ENV_CONV_EXCL=ARGS LNK="$lnk" ARGS="$2" powershell.exe -NoProfile -Command '
+    $s = (New-Object -ComObject WScript.Shell).CreateShortcut($env:LNK)
+    $s.Arguments = $env:ARGS
+    $s.Save()'
+}
+
+setup_windows() {
+  # ────────────────────────────── scoop ──────────────────────────────
+
+  step "scoop"
+  if ! command -v scoop >/dev/null 2>&1; then
+    powershell.exe -NoProfile -Command 'Set-ExecutionPolicy -Scope CurrentUser RemoteSigned -Force; irm get.scoop.sh | iex'
+  fi
+  export PATH="$HOME/scoop/shims:$PATH" # scoop isn't on PATH yet in a fresh shell
+
+  scoopfile="$config/scoop/scoopfile.json"
+  if [ -f "$scoopfile" ]; then
+    scoop import "$(cygpath -w "$scoopfile")" # already installed apps are skipped
+  else
+    echo "no scoopfile at $scoopfile, skipping"
+  fi
+
+  # ────────────────────────────── powershell ──────────────────────────────
+
+  step "powershell profile"
+  profile="$(cygpath -u "$(pwsh -NoProfile -Command '$PROFILE' | tr -d '\r')")"
+  mkdir -p "$(dirname "$profile")"
+  line='. "$HOME/.config/powershell/Microsoft.PowerShell_profile.ps1"'
+  if ! grep -qxF "$line" "$profile" 2>/dev/null; then
+    [ -s "$profile" ] && [ -n "$(tail -c1 "$profile")" ] && echo >>"$profile" # no trailing newline
+    printf '%s\n' "$line" >>"$profile" # append, keeping anything else in there
+  fi
+
+  # ────────────────────────────── clink ──────────────────────────────
+
+  step "clink scripts"
+  if command -v clink >/dev/null 2>&1; then
+    scripts="$(cygpath -w "$config/clink")"
+    clink installscripts --list | grep -qiF "$scripts" || clink installscripts "$scripts"
+    clink set clink.logo none >/dev/null
+  else
+    echo "clink not installed, skipping"
+  fi
+
+  # ────────────────────────────── start menu ──────────────────────────────
+
+  # hide the pwsh banner when opened from the start menu. scoop recreates its
+  # shortcut on `scoop update pwsh`, so re-run bootstrap after updating
+  step "start menu shortcuts"
+  set_shortcut_args "Scoop Apps/PowerShell Core.lnk" "-NoLogo -WorkingDirectory ~"
+
+  # ────────────────────────────── git ──────────────────────────────
+
+  # use windows openssh so git gets the system ssh agent. an env var rather than
+  # git config --system, since scoop replaces git's system config on every update
+  step "git ssh"
+  setx GIT_SSH 'C:\Windows\System32\OpenSSH\ssh.exe' >/dev/null
+}
+
+case "$(uname -s)" in
+  Darwin) setup_macos ;;
+  MINGW* | MSYS*) setup_windows ;;
+esac
+
+# ────────────────────────────── mise ──────────────────────────────
+
+step "mise tools"
+if command -v mise >/dev/null 2>&1; then
+  mise install
 else
-  echo "no Brewfile at $brewfile, skipping (the shell startup check will list missing tools)"
-fi
-
-# ────────────────────────────── fish plugins ──────────────────────────────
-
-# fisher isn't tracked, so fetch it once and let it install everything in fish_plugins
-step "fish plugins"
-if command -v fish >/dev/null 2>&1; then
-  fish -c 'type -q fisher; or curl -fsSL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source; fisher update'
-else
-  echo "fish not installed, skipping"
-fi
-
-# ────────────────────────────── default apps ──────────────────────────────
-
-step "default apps (duti)"
-if command -v duti >/dev/null 2>&1; then
-  duti "$config/duti" || echo "duti failed (are the apps it references installed?)" # applies every settings file in the folder
-else
-  echo "duti not installed, skipping"
-fi
-
-# ────────────────────────────── macos settings ──────────────────────────────
-
-step "macos settings"
-if [ "$(uname)" = Darwin ] && confirm "apply macos-defaults.sh (changes system settings, needs sudo)?"; then
-  sh "$config/shell/scripts/macos-defaults.sh" -y
+  echo "mise not installed, skipping"
 fi
 
 step "done - open a new terminal to load everything"
