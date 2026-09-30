@@ -13,6 +13,7 @@ $character"""
 
 add_newline = false
 command_timeout = 5000 # mise doctor sometimes takes a while
+scan_timeout = 100 # home dir scans can be slow on a cold windows start
 
 [directory]
 format = "[ $path ]($style)"
@@ -104,6 +105,7 @@ disabled = true
 when = '[ "$(~/.config/starship/aws-state.sh)" = ok ]'
 command = 'echo $AWS_VAULT'
 shell = ["sh"]
+os = "macos"
 format = " [$output]($style)"
 style = "fg:#8c816b"
 
@@ -111,6 +113,7 @@ style = "fg:#8c816b"
 when = '[ "$(~/.config/starship/aws-state.sh)" = soon ]'
 command = 'echo $AWS_VAULT'
 shell = ["sh"]
+os = "macos"
 format = " [$output]($style)"
 style = "fg:#d79921"
 
@@ -118,6 +121,7 @@ style = "fg:#d79921"
 when = '[ "$(~/.config/starship/aws-state.sh)" = expired ]'
 command = 'echo $AWS_VAULT'
 shell = ["sh"]
+os = "macos"
 format = " [$output]($style)"
 style = "fg:#cc241d"
 
