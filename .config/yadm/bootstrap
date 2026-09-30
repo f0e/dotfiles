@@ -18,12 +18,6 @@ confirm() {
 }
 
 setup_macos() {
-  # ────────────────────────────── submodules ──────────────────────────────
-
-  step "submodules (mpv)"
-  cd "$HOME"
-  yadm submodule update --init --recursive
-
   # ────────────────────────────── homebrew ──────────────────────────────
 
   step "homebrew"
@@ -128,6 +122,12 @@ setup_windows() {
   step "git ssh"
   setx GIT_SSH 'C:\Windows\System32\OpenSSH\ssh.exe' >/dev/null
 }
+
+# ────────────────────────────── submodules ──────────────────────────────
+
+step "submodules (mpv)"
+cd "$HOME"
+yadm submodule update --init --recursive
 
 case "$(uname -s)" in
   Darwin) setup_macos ;;
