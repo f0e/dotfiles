@@ -74,8 +74,9 @@ setup_windows() {
   # ────────────────────────────── scoop ──────────────────────────────
 
   step "scoop"
-  if ! command -v scoop >/dev/null 2>&1; then
-    powershell.exe -NoProfile -Command 'Set-ExecutionPolicy -Scope CurrentUser RemoteSigned -Force; irm get.scoop.sh | iex'
+  if ! command -v scoop >/dev/null 2>&1 && [ ! -f "$HOME/scoop/shims/scoop" ]; then
+    # windows powershell can't load its own modules with pwsh's PSModulePath (git bash opened from pwsh)
+    env -u PSModulePath powershell.exe -NoProfile -Command 'Set-ExecutionPolicy -Scope CurrentUser RemoteSigned -Force; irm get.scoop.sh | iex'
   fi
   export PATH="$HOME/scoop/shims:$PATH" # scoop isn't on PATH yet in a fresh shell
 
@@ -120,19 +121,21 @@ setup_windows() {
   # use windows openssh so git gets the system ssh agent. an env var rather than
   # git config --system, since scoop replaces git's system config on every update
   step "git ssh"
-  setx GIT_SSH 'C:\Windows\System32\OpenSSH\ssh.exe' >/dev/null
+  export GIT_SSH='C:\Windows\System32\OpenSSH\ssh.exe' # setx only affects new terminals
+  setx GIT_SSH "$GIT_SSH" >/dev/null
 }
-
-# ────────────────────────────── submodules ──────────────────────────────
-
-step "submodules (mpv)"
-cd "$HOME"
-yadm submodule update --init --recursive
 
 case "$(uname -s)" in
   Darwin) setup_macos ;;
   MINGW* | MSYS*) setup_windows ;;
 esac
+
+# ────────────────────────────── submodules ──────────────────────────────
+
+# after the os setup so windows clones through its ssh agent
+step "submodules (mpv)"
+cd "$HOME"
+yadm submodule update --init --recursive || echo "submodule update failed (is your ssh key set up?)"
 
 # ────────────────────────────── mise ──────────────────────────────
 
