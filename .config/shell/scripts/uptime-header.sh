@@ -45,6 +45,18 @@ uptime_header() {
   shell_path=${1:-$SHELL}
   shell_colours "$shell_path"
 
+  # nested shell: same machine as the parent (the var doesn't cross ssh), so say what it's nested in instead of repeating the uptime
+  if [ -n "$HEADER_PARENT_SHELL" ]; then
+    context="subshell of ${HEADER_PARENT_SHELL##*/}"
+    # $PPID is the shell running this script, so its parent is whatever launched the shell (e.g. aws-vault, nvim)
+    owner=$(ps -o comm= -p "$(ps -o ppid= -p "$PPID")" 2>/dev/null)
+    owner=${owner##*/}
+    owner=${owner#-} # login shells show as "-fish"
+    [ -n "$owner" ] && [ "$owner" != "${HEADER_PARENT_SHELL##*/}" ] && context="$context, via $owner"
+    printf '%s%s %s %s%s %s %s\n\n' "$header_bg" "$blue" "$shell_path" "$header_bg_dim" "$grey" "$context" "$reset"
+    return
+  fi
+
   # seconds since boot
   if boot=$(sysctl -n kern.boottime 2>/dev/null); then
     # macos: "{ sec = 1758590000, usec = 0 } Tue Sep 23 ..."

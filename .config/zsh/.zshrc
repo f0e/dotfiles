@@ -33,6 +33,7 @@ fi
 # ────────────────────────────── startup ──────────────────────────────
 
 sh "$XDG_CONFIG_HOME/shell/scripts/startup.sh" "$SHELL"
+export HEADER_PARENT_SHELL=$SHELL # tells child shells they are nested, and in what
 
 # ────────────────────────────── opts ──────────────────────────────
 

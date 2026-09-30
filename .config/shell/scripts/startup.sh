@@ -7,5 +7,7 @@ config=${XDG_CONFIG_HOME:-$HOME/.config}
 . "$config/shell/scripts/uptime-header.sh"
 . "$config/shell/scripts/tools.sh"
 
+# nested shell (the parent already printed a header): separate it from the previous output
+[ -n "$HEADER_PARENT_SHELL" ] && echo
 uptime_header "$1"
 missing_tools
