@@ -141,7 +141,8 @@ esac
 # after the os setup so windows clones through its ssh agent
 step "submodules (mpv)"
 cd "$HOME"
-yadm submodule update --init --recursive || echo "submodule update failed (is your ssh key set up?)"
+# --merge keeps local commits instead of resetting the checkout to the recorded commit
+yadm submodule update --init --recursive --merge || echo "submodule update failed (is your ssh key set up?)"
 
 # ────────────────────────────── mise ──────────────────────────────
 
