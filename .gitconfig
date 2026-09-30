@@ -85,3 +85,5 @@
 [user]
 	name = f0e
 	email = 7321764+f0e@users.noreply.github.com
+[safe]
+	directory = *
