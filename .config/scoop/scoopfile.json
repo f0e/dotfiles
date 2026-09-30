@@ -1,0 +1,26 @@
+{
+  "buckets": [
+    { "Name": "main", "Source": "https://github.com/ScoopInstaller/Main" }
+  ],
+  "apps": [
+    { "Name": "atuin", "Source": "main" },
+    { "Name": "bat", "Source": "main" },
+    { "Name": "clink", "Source": "main" },
+    { "Name": "coreutils", "Source": "main" },
+    { "Name": "delta", "Source": "main" },
+    { "Name": "eza", "Source": "main" },
+    { "Name": "fd", "Source": "main" },
+    { "Name": "ffmpeg", "Source": "main" },
+    { "Name": "fzf", "Source": "main" },
+    { "Name": "git", "Source": "main" },
+    { "Name": "mise", "Source": "main" },
+    { "Name": "neovim", "Source": "main" },
+    { "Name": "nircmd", "Source": "main" },
+    { "Name": "pastel", "Source": "main" },
+    { "Name": "pwsh", "Source": "main" },
+    { "Name": "ripgrep", "Source": "main" },
+    { "Name": "starship", "Source": "main" },
+    { "Name": "wget", "Source": "main" },
+    { "Name": "zoxide", "Source": "main" }
+  ]
+}
