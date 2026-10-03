@@ -2,6 +2,7 @@
 	excludesfile = ~/.gitignore_global
 	editor = nvim
 	pager = delta
+	symlinks = true
 
 [init]
 	defaultBranch = main
